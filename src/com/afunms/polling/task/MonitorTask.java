@@ -14,7 +14,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import net.sf.hibernate.SessionFactory;
 
 import org.apache.log4j.Logger;
 
@@ -27,7 +26,6 @@ import org.apache.log4j.Logger;
 public abstract class MonitorTask extends TimerTask {
 	private int interval = 1000;
 	private Context ctx;
-	private SessionFactory sessionFactory;
 	private Logger logger=Logger.getLogger(MonitorTask.class);
 
 	protected SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -61,30 +59,6 @@ public abstract class MonitorTask extends TimerTask {
 	public void destroy() {
 
 	}
-	public boolean isGetSessionFactory(){
-		boolean b=false;
-		try{
-	
-			int i=0;
-
-			Context inttex = new InitialContext();
-			try {
-			//从JNDI中取得SessionFactory的实例，如果出错返回false
-				SessionFactory sessionFactory =
-				(SessionFactory) inttex.lookup("HibernateSessionFactory");
-				b=true;
-			} 
-			catch (NamingException e) {
-				b=false;
-				return b;
-			}
-		}		
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		return b;
-	}
-
 	public void setInterval(float d,String t)
 	   {
 		  if(t.equals("d"))

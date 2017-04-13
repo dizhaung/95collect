@@ -16,11 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.afunms.common.util.SysLogger;
-import com.lowagie.text.BadElementException;
-import com.lowagie.text.Cell;
-import com.lowagie.text.Element;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Table;
+import com.itextpdf.text.Phrase;
+
 
 public class BaseManager
 {
@@ -230,48 +227,5 @@ public class BaseManager
        else
       	  targetJsp = null; 
        return targetJsp;
-   }   
-   
-   /**
-	 * 设置单元格的格式
-	 * 
-	 * @param cell
-	 *            单元格
-	 * @param flag
-	 *            是否设置灰色背景色
-	 * @return cell
-	 */
-	protected Cell setCellFormat(Object obj, boolean flag) {
-		Cell cell = null;
-		Phrase p = null;
-		if (obj instanceof Cell) {
-			cell = (Cell) obj;
-		} else if (obj instanceof Phrase) {
-			p = (Phrase) obj;
-			try {
-				cell = new Cell(p);
-			} catch (BadElementException e) {
-				SysLogger.error("", e);
-			}
-		}
-		if (cell != null) {
-			if (flag) {
-				cell.setBackgroundColor(Color.LIGHT_GRAY);
-			}
-			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		}
-		return cell;
-	}
-	
-	/**
-	 * 设置表格格式
-	 * @param aTable
-	 */
-	protected void setTableFormat(Table aTable){
-		aTable.setWidth(100);
-		aTable.setAutoFillEmptyCells(true);
-		aTable.setPadding(5);
-		aTable.setAlignment(Element.ALIGN_CENTER);
-	}
+   }
 }
