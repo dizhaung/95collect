@@ -1,0 +1,256 @@
+/**
+ * <p>Description:node of topology,all devices are hosts</p>
+ * <p>Company: dhcc.com</p>
+ * @author afunms
+ * @project afunms
+ * @date 2006-08-10
+ */
+
+package com.afunms.util;
+
+import java.util.*;
+
+import com.afunms.common.util.*;
+import com.afunms.polling.task.ThreadPool;
+
+public class Host extends Node
+{    
+	private int hasDetected;
+	private boolean isDiscovered;   
+	private boolean linkAnalysed;	
+	private int ipTotal;  
+	private String alias;
+	private String switchIds;
+	private int completSwitchs;
+	private boolean isRouter;
+	private List<String> vlanCommunities;
+	private String bridgeAddress;
+	
+    public Host()
+    {   	  	
+    	setDiscovered(false);
+        setNetMask("255.255.255.0");
+        hasDetected = 0;
+        ipTotal = -1;
+        alias = null;
+    }
+    
+    public void completeOneSwitch()
+    {
+    	completSwitchs ++;
+    }
+    
+    public boolean allSwitchesFound()
+    {
+    	if(switchIds==null) return true;
+    	String[] ids = switchIds.split(",");
+    	if(completSwitchs==ids.length)
+    	   return true;
+    	else
+    	   return false;	
+    }
+    
+    public void setRouter(boolean is)
+    {
+        isRouter = is;	
+    }
+    
+    public boolean isRouter()
+    {
+        return isRouter;	
+    }
+    
+    public void addSwitchId(int id)
+    {
+        if(switchIds==null)
+           switchIds = "" + id;
+        else
+           switchIds += "," + id;
+        SysLogger.info(ipAddress + "加入一交换,id=" + id);
+    }
+    
+    public String getSwitchIds()
+    {
+        return switchIds;	
+    }
+    
+	public boolean isDiscovered() {
+		return isDiscovered;
+	}
+
+	public void setDiscovered(boolean isDiscovered) {
+		this.isDiscovered = isDiscovered;
+	}
+    
+    /**
+     * 按接口索引找到接口
+     */
+    public IfEntity getIfEntityByIndex(String ifIndex)
+    {    
+    	if(ifEntityList==null||ifEntityList.size()==0)
+    		return null;
+
+    	IfEntity ifEntity = null;
+    	for(int i=0;i<ifEntityList.size();i++)    	
+    	{
+    		IfEntity obj = (IfEntity)ifEntityList.get(i);
+    		if(obj.getIndex().equals(ifIndex))
+    		{
+    			ifEntity = obj;
+    			break;
+    		}	
+    	}	
+        if(ifEntity == null)    	    	
+		   SysLogger.info(ipAddress + "中没有索引为" + ifIndex + "的接口");
+        
+		return ifEntity;
+    }
+    
+    /**
+     * 按端口找到一个接口
+     */
+    public IfEntity getIfEntityByPort(String port)
+    {
+    	if(port==null) return null;    	
+    	if(ifEntityList==null||ifEntityList.size()==0)
+    		return null;	
+    	
+    	IfEntity ifEntity = null;
+    	for(int i=0;i<ifEntityList.size();i++)    	
+    	{
+    		IfEntity obj = (IfEntity)ifEntityList.get(i);
+    		if(obj.getPort().equals(port))
+    		{
+    			ifEntity = obj;
+    			break;
+    		}	
+    	}
+        if(ifEntity == null)    	    	
+ 		   SysLogger.info(ipAddress + "中没有端口为" + port + "的接口");    	
+    	return ifEntity;
+    } 
+    
+    /**
+     * 按描述找到一个接口
+     */
+    public IfEntity getIfEntityByDesc(String desc)
+    {
+    	if(desc==null) return null;    	
+    	if(ifEntityList==null||ifEntityList.size()==0)
+    		return null;	
+    	
+    	IfEntity ifEntity = null;
+    	for(int i=0;i<ifEntityList.size();i++)    	
+    	{
+    		IfEntity obj = (IfEntity)ifEntityList.get(i);
+    		if(obj.getDescr().equals(desc))
+    		{
+    			ifEntity = obj;
+    			break;
+    		}	
+    	}
+        if(ifEntity == null)    	    	
+ 		   SysLogger.info(ipAddress + "中没有端口描述为" + desc + "的接口");    	
+    	return ifEntity;
+    }
+    /**
+     * 按IP找到接口
+     */
+    public IfEntity getIfEntityByIP(String ip)
+    {    
+    	if(ifEntityList==null||ifEntityList.size()==0)
+    		return null;	
+    	
+    	IfEntity ifEntity = null;
+    	for(int i=0;i<ifEntityList.size();i++)    	
+    	{
+    		IfEntity obj = (IfEntity)ifEntityList.get(i);		
+    		if(obj.getIpList()!=null)
+    		{
+    			if(obj.getIpList().split(",").length>0)
+    			{
+    				int flag = 0;
+    				String IPS[] = obj.getIpList().split(",");
+    				for(int k=0;k<IPS.length;k++)
+    				{
+    					//SysLogger.info(this.getIpAddress()+"含有接口地址"+IPS[k]+"===="+ip);
+    					if(IPS[k].equalsIgnoreCase(ip))
+    					{
+    						ifEntity = obj;
+    						flag = 1;
+    		    			break;
+    					}
+    				}
+    				if(flag == 1)break;
+    			}
+    			else
+    			{
+    				//SysLogger.info(this.getIpAddress()+"含有接口地址"+obj.getIpList()+"====="+ip);
+    				if(obj.getIpList().equalsIgnoreCase(ip))
+    				{
+    					ifEntity = obj;
+		    			break;
+    				}
+    			}
+    		}
+    	}
+		return ifEntity;
+    }
+    
+    /**
+     * 找到该设备的管理地址
+     */
+    /*
+    public String getAdminIp()
+    {    
+    	if(ifEntityList==null||ifEntityList.size()==0)
+    		return null;
+
+    	IfEntity ifEntity = null;
+    	for(int i=0;i<ifEntityList.size();i++)    	
+    	{
+    		IfEntity obj = (IfEntity)ifEntityList.get(i);
+    		if(obj.getType() == 24){
+    			//为LOOPBACK地址
+    			if(obj.getIpAddress().indexOf("127.0")<0){
+    				ifEntity = obj;
+    				return obj.getIpAddress();
+    			}
+    		}
+    	}	
+        if(ifEntity == null)    	    	
+		   SysLogger.info(ipAddress + "对应的设备中没有管理地址");        
+		return null;
+    }
+*/
+	public String getAlias() 
+	{
+		return alias;
+	}
+
+	public void setAlias(String alias) 
+	{
+		this.alias = alias;
+	}
+
+	public boolean isLinkAnalysed() {
+		return linkAnalysed;
+	}
+
+	public void setLinkAnalysed(boolean linkAnalysed) {
+		this.linkAnalysed = linkAnalysed;
+	}
+
+	public void setVlanCommunities(List<String> vlanCommunities) {
+		this.vlanCommunities = vlanCommunities;
+	}
+
+	public String getBridgeAddress() {
+		return bridgeAddress;
+	}
+
+	public void setBridgeAddress(String bridgeAddress) {
+		this.bridgeAddress = bridgeAddress;
+	} 
+
+}
