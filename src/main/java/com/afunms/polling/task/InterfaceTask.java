@@ -31,7 +31,6 @@ import com.afunms.polling.om.Task;
 import com.afunms.polling.om.UtilHdx;
 import com.afunms.polling.om.UtilHdxPerc;
 import com.afunms.polling.snmp.SnmpMibConstants;
-import com.afunms.polling.task.TaskXml;
 import com.afunms.topology.dao.HostInterfaceDao;
 import com.afunms.topology.dao.HostNodeDao;
 import com.afunms.topology.model.HostNode;
@@ -59,7 +58,7 @@ public class InterfaceTask extends MonitorTask {
 		Interface_IfType.put("5", "others(5)");
 
 	}
-	
+
 	protected static SnmpService snmp = new SnmpService();
 	private static Hashtable ifEntity_ifStatus = null;
 	static {
@@ -90,10 +89,8 @@ public class InterfaceTask extends MonitorTask {
 
 	}
 
-	public Hashtable collect_Data(HostNode host,Calendar date) {
+	public Hashtable collect_Data(HostNode host, Calendar date) {
 		host.setSnmpversion(1);
-		SysLogger.info("----------Á÷Á¿ÐÅÏ¢²É¼¯interface start -----"
-				+ host.getIpAddress());
 		Hashtable returnHash = new Hashtable();
 		Vector interfaceVector = new Vector();
 		Vector utilhdxVector = new Vector();
@@ -103,7 +100,7 @@ public class InterfaceTask extends MonitorTask {
 		Vector discardspercVector = new Vector();
 		Vector errorspercVector = new Vector();
 		Vector utilhdxpercVector = new Vector();
-		String utilfalg="";
+		String utilfalg = "";
 		try {
 			Interfacecollectdata interfacedata = null;
 			UtilHdx utilhdx = new UtilHdx();
@@ -112,53 +109,41 @@ public class InterfaceTask extends MonitorTask {
 			OutPkts outpacks = new OutPkts();
 			// start
 			try {
-				//System.out.println("ipaddress====="+host.getIpAddress());
 				Hashtable hash = ShareData.getOctetsdata(host.getIpAddress());
-				//System.out.println("hash.size===================="+hash.size());
-				//System.out.println("hash¶ÔÏó" + "Á÷ËÙ" + hash + "×ÛºÏÁ÷ËÙ×ÛºÏÁ÷" + hash+ "ËÙ×ÛºÏÁ÷ËÙÐÅÏ¢");
-				// È¡µÃÂÖÑ¯¼ä¸ôÊ±¼ä
-				TaskXml taskxml = new TaskXml();
-				Task task = taskxml.GetXml("netcollecttask");
-				int interval = getInterval(task.getPolltime().floatValue(),task.getPolltimeunit());
+
+				int interval = getInterval(5f, "m");
 				Hashtable hashSpeed = new Hashtable();
 				Hashtable hashHighSpeed = new Hashtable();
 				Hashtable octetsHash = new Hashtable();
 				if (hash == null)
 					hash = new Hashtable();
-				String[] oids = new String[] { 
-						"1.3.6.1.2.1.2.2.1.1",
-						"1.3.6.1.2.1.2.2.1.2",
-						"1.3.6.1.2.1.2.2.1.3",
-						"1.3.6.1.2.1.2.2.1.4", 
-						"1.3.6.1.2.1.2.2.1.5",
-						"1.3.6.1.2.1.31.1.1.1.15"};//ifHighSpeed
-				
-				String[] oids2 = new String[] { 
-						"1.3.6.1.2.1.2.2.1.6",
+				String[] oids = new String[] { "1.3.6.1.2.1.2.2.1.1",
+						"1.3.6.1.2.1.2.2.1.2", "1.3.6.1.2.1.2.2.1.3",
+						"1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.2.2.1.5",
+						"1.3.6.1.2.1.31.1.1.1.15" };// ifHighSpeed
+
+				String[] oids2 = new String[] { "1.3.6.1.2.1.2.2.1.6",
 						"1.3.6.1.2.1.2.2.1.7",// ifAdminStatus 6
 						"1.3.6.1.2.1.2.2.1.8",// ifOperStatus 7
 						"1.3.6.1.2.1.2.2.1.9",// ifLastChange 8
-						"1.3.6.1.2.1.31.1.1.1.1",
-						"1.3.6.1.2.1.4.20.1.1",// ipAdEntAddr
-						"1.3.6.1.2.1.4.20.1.2"};// ipAdEntIfIndex
-				
-				String[] oids1 = new String[] { 
-						"1.3.6.1.2.1.31.1.1.1.6", // ifHCInOctets
+						"1.3.6.1.2.1.31.1.1.1.1", "1.3.6.1.2.1.4.20.1.1",// ipAdEntAddr
+						"1.3.6.1.2.1.4.20.1.2" };// ipAdEntIfIndex
+
+				String[] oids1 = new String[] { "1.3.6.1.2.1.31.1.1.1.6", // ifHCInOctets
 						"1.3.6.1.2.1.31.1.1.1.8",// ifHCInMulticastPkts 10
 						"1.3.6.1.2.1.31.1.1.1.9",// ifHCInBroadcastPkts 11
 						"1.3.6.1.2.1.2.2.1.13",// ifInDiscards 3
 						"1.3.6.1.2.1.2.2.1.14"// ifInErrors 4
 				};
 
-				String[] oids3 = new String[] {
-						"1.3.6.1.2.1.31.1.1.1.10", // ifHCOutOctets
+				String[] oids3 = new String[] { "1.3.6.1.2.1.31.1.1.1.10", // ifHCOutOctets
 						"1.3.6.1.2.1.31.1.1.1.12",// ifHCOutMulticastPkts 12
 						"1.3.6.1.2.1.31.1.1.1.13",// ifHCOutBroadcastPkts 13
 						"1.3.6.1.2.1.2.2.1.19", // ifOutDiscards 8
 						"1.3.6.1.2.1.2.2.1.20"// ifOutErrors 9
-						
+
 				};
-				
+
 				final String[] desc = SnmpMibConstants.NetWorkMibInterfaceDesc0;
 				final String[] unit = SnmpMibConstants.NetWorkMibInterfaceUnit0;
 				final String[] chname = SnmpMibConstants.NetWorkMibInterfaceChname0;
@@ -167,7 +152,7 @@ public class InterfaceTask extends MonitorTask {
 				final String[] chname1 = SnmpMibConstants.NetWorkMibInterfaceChname1;
 				final String[] unit1 = SnmpMibConstants.NetWorkMibInterfaceUnit3;
 				final int[] scale1 = SnmpMibConstants.NetWorkMibInterfaceScale1;
-				
+
 				String[][] valueArray = null;
 				try {
 					valueArray = SnmpUtils.getTableData(host.getIpAddress(),
@@ -198,7 +183,7 @@ public class InterfaceTask extends MonitorTask {
 							3, 1000 * 30);
 				} catch (Exception e) {
 				}
-				
+
 				long allSpeed = 0;
 				long allHighSpeed = 0;
 				long allHighInOctetsSpeed = 0;
@@ -206,27 +191,27 @@ public class InterfaceTask extends MonitorTask {
 				long allHighOctetsSpeed = 0;
 
 				long allinpacks = 0;
-				long inupacks = 0;// Èë¿Úµ¥Ïò
-				long innupacks = 0;// ·Çµ¥Ïò
+				long inupacks = 0;// ï¿½ï¿½Úµï¿½ï¿½ï¿½
+				long innupacks = 0;// ï¿½Çµï¿½ï¿½ï¿½
 				long indiscards = 0;
 				long inerrors = 0;
 				long alloutpacks = 0;
-				long outupacks = 0;// ³ö¿Úµ¥Ïò
-				long outnupacks = 0;// ·Çµ¥Ïò
+				long outupacks = 0;// ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½
+				long outnupacks = 0;// ï¿½Çµï¿½ï¿½ï¿½
 				long outdiscards = 0;
 				long outerrors = 0;
-				
-				//Calendar cal=(Calendar)hash.get("collecttime");
+
+				// Calendar cal=(Calendar)hash.get("collecttime");
 				HostInterfaceDao hidao = new HostInterfaceDao();
 				List hiList = null;
-				try{
-					hiList =hidao.loadInterfaces(host.getIpAddress());
-				}catch(Exception e){
+				try {
+					hiList = hidao.loadInterfaces(host.getIpAddress());
+				} catch (Exception e) {
 					e.printStackTrace();
-				}finally{
+				} finally {
 					hidao.close();
 				}
-				String hiindex="";
+				String hiindex = "";
 				Vector tempV = new Vector();
 				Hashtable tempHash = new Hashtable();
 				if (valueArray != null) {
@@ -234,52 +219,55 @@ public class InterfaceTask extends MonitorTask {
 						if (valueArray[i][0] == null)
 							continue;
 						String sIndex = valueArray[i][0].toString();
-						
-						for(int h=0;h<hiList.size();h++){
+
+						for (int h = 0; h < hiList.size(); h++) {
 							InterfaceNode ifnode = new InterfaceNode();
-							ifnode=(InterfaceNode)hiList.get(h);
-							hiindex=ifnode.getIfIndex();
-							if(hiindex.equals(sIndex)){
+							ifnode = (InterfaceNode) hiList.get(h);
+							hiindex = ifnode.getIfIndex();
+							if (hiindex.equals(sIndex)) {
 								tempV.add(sIndex);
 								tempHash.put(i, sIndex);
 							}
 						}
 						HostNodeDao dao = new HostNodeDao();
 						String allipstr = SysUtil.doip(host.getIpAddress());
-						int count = dao.getTableCount("PORTSTATUS"+allipstr);
+						int count = dao.getTableCount("PORTSTATUS" + allipstr);
 						dao.close();
-						
+
 						for (int j = 0; j < 6; j++) {
-							
+
 							String sValue = valueArray[i][j];
 							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity(desc[j]);
 							interfacedata.setSubentity(sIndex);
-							// ¶Ë¿Ú×´Ì¬²»±£´æ£¬Ö»×÷Îª¾²Ì¬Êý¾Ý·Åµ½ÁÙÊ±±íÀï
+							// ï¿½Ë¿ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½æ£¬Ö»ï¿½ï¿½Îªï¿½ï¿½Ì¬ï¿½ï¿½ï¿½Ý·Åµï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 							interfacedata.setRestype("static");
 							interfacedata.setUnit(unit[j]);
-							
-							// Á÷ËÙ
+
+							// ï¿½ï¿½ï¿½ï¿½
 							if ((j == 4) && sValue != null) {
-								// Á÷ËÙ
+								// ï¿½ï¿½ï¿½ï¿½
 								long lValue = Long.parseLong(sValue);// yangjun
 								hashSpeed.put(sIndex, Long.toString(lValue));
 								allSpeed = allSpeed + lValue;
 							}
-							//HCÁ÷ËÙ
-							if((j == 5) && sValue != null){
-								//HCÁ÷ËÙ
+							// HCï¿½ï¿½ï¿½ï¿½
+							if ((j == 5) && sValue != null) {
+								// HCï¿½ï¿½ï¿½ï¿½
 								long lValue = Long.parseLong(sValue);
-								hashHighSpeed.put(sIndex, Long.toString(lValue));
-								allHighSpeed = allHighSpeed +lValue;
+								hashHighSpeed
+										.put(sIndex, Long.toString(lValue));
+								allHighSpeed = allHighSpeed + lValue;
 							}
-							// ¶Ë¿ÚÀàÐÍ
+							// ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½
 							if ((j == 2) && sValue != null) {
 								if (Interface_IfType.get(sValue) != null) {
-									interfacedata.setThevalue(Interface_IfType.get(sValue).toString());
+									interfacedata.setThevalue(Interface_IfType
+											.get(sValue).toString());
 								} else {
 									interfacedata.setThevalue("0.0");
 								}
@@ -288,15 +276,22 @@ public class InterfaceTask extends MonitorTask {
 									interfacedata.setThevalue(sValue);
 								} else {
 									if (sValue != null) {
-										interfacedata.setThevalue(Long.toString(Long.parseLong(sValue)/ scale[j]));
+										interfacedata.setThevalue(Long
+												.toString(Long
+														.parseLong(sValue)
+														/ scale[j]));
 									} else {
 										interfacedata.setThevalue("0");
 									}
 								}
 							}
 							interfacedata.setChname(chname[j]);
-							if ("ifPhysAddress".equals(interfacedata.getEntity())) {
-								if ((interfacedata.getThevalue() == null)|| (interfacedata.getThevalue().length() > 0 && !interfacedata.getThevalue().contains(":"))) {// macµØÖ·×Ö·û´®µÄ×Ü³¤¶È
+							if ("ifPhysAddress".equals(interfacedata
+									.getEntity())) {
+								if ((interfacedata.getThevalue() == null)
+										|| (interfacedata.getThevalue()
+												.length() > 0 && !interfacedata
+												.getThevalue().contains(":"))) {// macï¿½ï¿½Ö·ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü³ï¿½ï¿½ï¿½
 									interfacedata.setThevalue("--");
 								}
 							}
@@ -315,7 +310,7 @@ public class InterfaceTask extends MonitorTask {
 								continue;
 
 							for (int j = 0; j < 5; j++) {
-								// °ÑÔ¤ÆÚ×´Ì¬ºÍifLastChange¹ýÂËµô
+								// ï¿½ï¿½Ô¤ï¿½ï¿½×´Ì¬ï¿½ï¿½ifLastChangeï¿½ï¿½ï¿½Ëµï¿½
 								if (j == 3)
 									continue;
 
@@ -323,16 +318,19 @@ public class InterfaceTask extends MonitorTask {
 
 								interfacedata = new Interfacecollectdata();
 								interfacedata.setIpaddress(host.getIpAddress());
-								interfacedata.setCollecttime(sdf.format(date.getTime()));
+								interfacedata.setCollecttime(sdf.format(date
+										.getTime()));
 								interfacedata.setCategory("Interface");
 								interfacedata.setEntity(desc[5 + j]);
 								interfacedata.setSubentity(sIndex);
-								// ¶Ë¿Ú×´Ì¬²»±£´æ£¬Ö»×÷Îª¾²Ì¬Êý¾Ý·Åµ½ÁÙÊ±±íÀï
+								// ï¿½Ë¿ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½æ£¬Ö»ï¿½ï¿½Îªï¿½ï¿½Ì¬ï¿½ï¿½ï¿½Ý·Åµï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
 								interfacedata.setRestype("static");
 								interfacedata.setUnit(unit[5 + j]);
-								if ((j == 1 || j == 2) && sValue != null) {// Ô¤ÆÚ×´Ì¬ºÍµ±Ç°×´Ì¬
+								if ((j == 1 || j == 2) && sValue != null) {// Ô¤ï¿½ï¿½×´Ì¬ï¿½Íµï¿½Ç°×´Ì¬
 									if (ifEntity_ifStatus.get(sValue) != null) {
-										interfacedata.setThevalue(ifEntity_ifStatus.get(sValue).toString());
+										interfacedata
+												.setThevalue(ifEntity_ifStatus
+														.get(sValue).toString());
 									} else {
 										interfacedata.setThevalue("0.0");
 									}
@@ -341,7 +339,10 @@ public class InterfaceTask extends MonitorTask {
 										interfacedata.setThevalue(sValue);
 									} else {
 										if (sValue != null) {
-											interfacedata.setThevalue(Long.toString(Long.parseLong(sValue)/ scale[5 + j]));
+											interfacedata.setThevalue(Long
+													.toString(Long
+															.parseLong(sValue)
+															/ scale[5 + j]));
 										} else {
 											interfacedata.setThevalue("0");
 										}
@@ -355,7 +356,7 @@ public class InterfaceTask extends MonitorTask {
 											|| (interfacedata.getThevalue()
 													.length() > 0 && !interfacedata
 													.getThevalue()
-													.contains(":"))) {// macµØÖ·×Ö·û´®µÄ×Ü³¤¶È
+													.contains(":"))) {// macï¿½ï¿½Ö·ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü³ï¿½ï¿½ï¿½
 										interfacedata.setThevalue("--");
 									}
 								}
@@ -368,646 +369,884 @@ public class InterfaceTask extends MonitorTask {
 				Hashtable packhash = new Hashtable();
 				Hashtable discardshash = new Hashtable();
 				Hashtable errorshash = new Hashtable();
-				
+
 				if (valueArray1 != null) {
-					Calendar cal= null;
+					Calendar cal = null;
 					for (int i = 0; i < valueArray1.length; i++) {
 						allinpacks = 0;
-						inupacks = 0;// Èë¿Ú¹ã²¥
-						innupacks = 0;// Èë¿Ú¶à²¥
+						inupacks = 0;// ï¿½ï¿½Ú¹ã²¥
+						innupacks = 0;// ï¿½ï¿½Ú¶à²¥
 						indiscards = 0;
 						inerrors = 0;
 						InterfaceNode ifNode = new InterfaceNode();
-						
+
 						String sIndex = (String) tempHash.get(i);
-						
+
 						if (tempV.contains(sIndex)) {
 							for (int j = 0; j < 5; j++) {
 								if (valueArray1[i][j] != null) {
 									String sValue = valueArray1[i][j];
 									interfacedata = new Interfacecollectdata();
 									interfacedata.setThevalue(sValue);
-									if (j==1 || j==2){
-										//Èë¿Ú¹ã²¥Êý¾Ý°ü,Èë¿Ú¶à²¥Êý¾Ý°ü												
-										if (sValue != null){
-											allinpacks=allinpacks+Long.parseLong(sValue);
-											cal=(Calendar)hash.get("collecttime");
-											long timeInMillis=0;
-											if(cal!=null)timeInMillis=cal.getTimeInMillis();
-											long longinterval=(date.getTimeInMillis()-timeInMillis)/1000;
-											
-											inpacks=new InPkts();
-											inpacks.setIpaddress(host.getIpAddress());
-											inpacks.setCollecttime(sdf.format(date.getTime()));
+									if (j == 1 || j == 2) {
+										// ï¿½ï¿½Ú¹ã²¥ï¿½ï¿½ï¿½Ý°ï¿½,ï¿½ï¿½Ú¶à²¥ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
+											allinpacks = allinpacks
+													+ Long.parseLong(sValue);
+											cal = (Calendar) hash
+													.get("collecttime");
+											long timeInMillis = 0;
+											if (cal != null)
+												timeInMillis = cal
+														.getTimeInMillis();
+											long longinterval = (date
+													.getTimeInMillis() - timeInMillis) / 1000;
+
+											inpacks = new InPkts();
+											inpacks.setIpaddress(host
+													.getIpAddress());
+											inpacks.setCollecttime(sdf
+													.format(date.getTime()));
 											inpacks.setCategory("Interface");
-											String chnameBand="";
-											if(j==1){
+											String chnameBand = "";
+											if (j == 1) {
 												inpacks.setEntity("ifHCInMulticastPkts");
-												chnameBand="¶à²¥";
+												chnameBand = "ï¿½à²¥";
 											}
-											if(j==2){
+											if (j == 2) {
 												inpacks.setEntity("ifHCInBroadcastPkts");
-												chnameBand="¹ã²¥";
+												chnameBand = "ï¿½ã²¥";
 											}
 											inpacks.setSubentity(sIndex);
 											inpacks.setRestype("dynamic");
-											inpacks.setUnit("");	
+											inpacks.setUnit("");
 											inpacks.setChname(chnameBand);
-											BigDecimal currentPacks=new BigDecimal(sValue);
-											BigDecimal lastPacks=new BigDecimal(0);	
-											BigDecimal l=new BigDecimal(0);								
-													
-											//Èç¹ûµ±Ç°²É¼¯Ê±¼äÓëÉÏ´Î²É¼¯Ê±¼äµÄ²îÐ¡ÓÚ²É¼¯¼ä¸ôÁ½±¶£¬Ôò¼ÆËã´ø¿íÀûÓÃÂÊ£¬·ñÔò´ø¿íÀûÓÃÂÊÎª0£»
-											if(longinterval<2*interval){
-												String lastvalue="";
-												
-												if(hash.get(desc1[j]+":"+sIndex)!=null){
-													lastvalue=hash.get(desc1[j]+":"+sIndex).toString();
-												}else{
-													lastvalue="0";
+											BigDecimal currentPacks = new BigDecimal(
+													sValue);
+											BigDecimal lastPacks = new BigDecimal(
+													0);
+											BigDecimal l = new BigDecimal(0);
+
+											// ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½É¼ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Î²É¼ï¿½Ê±ï¿½ï¿½Ä²ï¿½Ð¡ï¿½Ú²É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ï¿½
+											if (longinterval < 2 * interval) {
+												String lastvalue = "";
+
+												if (hash.get(desc1[j] + ":"
+														+ sIndex) != null) {
+													lastvalue = hash.get(
+															desc1[j] + ":"
+																	+ sIndex)
+															.toString();
+												} else {
+													lastvalue = "0";
 												}
-												//È¡µÃÉÏ´Î»ñµÃµÄOctets
-												if(lastvalue!=null && !lastvalue.equals("")){
-													lastPacks=new BigDecimal(lastvalue);
-												}else{
-													lastPacks = new BigDecimal("0");
+												// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½Octets
+												if (lastvalue != null
+														&& !lastvalue
+																.equals("")) {
+													lastPacks = new BigDecimal(
+															lastvalue);
+												} else {
+													lastPacks = new BigDecimal(
+															"0");
 												}
 											}
-											if(longinterval!=0){
-												BigDecimal packsBetween=currentPacks.subtract(lastPacks);
-												l=packsBetween;
-												if(lastPacks.equals("0")){
-													l=new BigDecimal("0");
+											if (longinterval != 0) {
+												BigDecimal packsBetween = currentPacks
+														.subtract(lastPacks);
+												l = packsBetween;
+												if (lastPacks.equals("0")) {
+													l = new BigDecimal("0");
 												}
 											}
-											if(sValue == null){
+											if (sValue == null) {
 												inpacks.setThevalue("0");
-											}else{
-												inpacks.setThevalue(l.toString());	
+											} else {
+												inpacks.setThevalue(l
+														.toString());
 											}
-											
-											//SysLogger.info(host.getIpAddress()+" µÚ"+utilhdx.getSubentity()+"¶Ë¿Ú "+"inpacks "+Long.toString(l));
+
+											// SysLogger.info(host.getIpAddress()+" ï¿½ï¿½"+utilhdx.getSubentity()+"ï¿½Ë¿ï¿½ "+"inpacks "+Long.toString(l));
 											if (cal != null)
-												inpacksVector.addElement(inpacks);	
+												inpacksVector
+														.addElement(inpacks);
 										}
-											//continue;
+										// continue;
 									}
 									if (j == 3) {
-										// Èë¿Ú¶ªÆúµÄÊý¾Ý°ü
-										if (sValue != null){
+										// ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
 											indiscards = Long.parseLong(sValue);
-										}else{
+										} else {
 											indiscards = 0;
-										}continue;
+										}
+										continue;
 									}
 									if (j == 4) {
-										// Èë¿Ú´íÎóµÄÊý¾Ý°ü
-										if (sValue != null){
+										// ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
 											inerrors = Long.parseLong(sValue);
-										}else{
+										} else {
 											inerrors = 0;
-										}continue;
+										}
+										continue;
 									}
-									
-									// ¼ÆËãÃ¿¸ö¶Ë¿ÚÁ÷ËÙ¼°ÀûÓÃÂÊ
+
+									// ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 									if (j == 0) {
-										cal=(Calendar)hash.get("collecttime");
-										long timeInMillis=0;
-										if(cal!=null)timeInMillis=cal.getTimeInMillis();
-										long longinterval=(date.getTimeInMillis()-timeInMillis)/1000;
+										cal = (Calendar) hash
+												.get("collecttime");
+										long timeInMillis = 0;
+										if (cal != null)
+											timeInMillis = cal
+													.getTimeInMillis();
+										long longinterval = (date
+												.getTimeInMillis() - timeInMillis) / 1000;
 										portIPS = new PortIPS();
-										portIPS.setIpaddress(host.getIpAddress());
-										portIPS.setCollecttime(sdf.format(date.getTime()));
+										portIPS.setIpaddress(host
+												.getIpAddress());
+										portIPS.setCollecttime(sdf.format(date
+												.getTime()));
 										portIPS.setCategory("Interface");
 										if (j == 0) {
-											portIPS.setEntity("Èë¿Ú");
+											portIPS.setEntity("ï¿½ï¿½ï¿½");
 										}
 										portIPS.setRestype("dynamic");
 										portIPS.setSubentity(sIndex);
 										portIPS.setUtilhdxunit(unit1[j]);
-										BigDecimal currentHighOctets = new BigDecimal(sValue);
-										BigDecimal lastHighOctets = new BigDecimal(0);
+										BigDecimal currentHighOctets = new BigDecimal(
+												sValue);
+										BigDecimal lastHighOctets = new BigDecimal(
+												0);
 										double l = 0.00;
 										double octets = 0.00;
-										// Èç¹ûµ±Ç°²É¼¯Ê±¼äÓëÉÏ´Î²É¼¯Ê±¼äµÄ²îÐ¡ÓÚ²É¼¯¼ä¸ôÁ½±¶£¬Ôò¼ÆËã´ø¿íÀûÓÃÂÊ£¬·ñÔò´ø¿íÀûÓÃÂÊÎª0£»
+										// ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½É¼ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Î²É¼ï¿½Ê±ï¿½ï¿½Ä²ï¿½Ð¡ï¿½Ú²É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ï¿½
 										String lastvalue = "";
 
 										if (hash.get(desc1[j] + ":" + sIndex) != null)
-											lastvalue = hash.get(desc1[j] + ":" + sIndex).toString();
-										// È¡µÃÉÏ´Î»ñµÃµÄHighOctets
-										if (lastvalue != null && !lastvalue.equals(""))
-											lastHighOctets = new BigDecimal(lastvalue);
+											lastvalue = hash.get(
+													desc1[j] + ":" + sIndex)
+													.toString();
+										// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½HighOctets
+										if (lastvalue != null
+												&& !lastvalue.equals(""))
+											lastHighOctets = new BigDecimal(
+													lastvalue);
 										if (longinterval != 0) {
 											double octetsHighBetween = 0.00;
-											// ÏÖÁ÷Á¿-Ç°Á÷Á¿
-											octetsHighBetween = Long.valueOf(currentHighOctets.subtract(lastHighOctets).toString());
-											octets = octetsHighBetween/(1000*1000*8);
-											if(octets<0){
-												octets=0;
+											// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-Ç°ï¿½ï¿½ï¿½ï¿½
+											octetsHighBetween = Long
+													.valueOf(currentHighOctets
+															.subtract(
+																	lastHighOctets)
+															.toString());
+											octets = octetsHighBetween
+													/ (1000 * 1000 * 8);
+											if (octets < 0) {
+												octets = 0;
 											}
-											//ÉÏ´ÎÁ÷Á¿
-											double beforeOctets=0.00;
-											if(ShareData.getUtilhdxdata(desc1[j]+":"+host.getIpAddress()+":"+sIndex)!=null){
-												beforeOctets= ShareData.getUtilhdxdata(desc1[j]+":"+host.getIpAddress()+":"+sIndex);
-												utilfalg=String.valueOf(beforeOctets);
-												//µ±Ç°Á÷Á¿¶¼²»Îª0
-												if (beforeOctets!=0) {
-													//´óÓÚ10±¶ÎªÒì³£Á÷Á¿
-													if (10*beforeOctets<=octets ){
-														//¸ø²åÈë±êÊ¶ÎªÒì³£Á÷Á¿
+											// ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½
+											double beforeOctets = 0.00;
+											if (ShareData
+													.getUtilhdxdata(desc1[j]
+															+ ":"
+															+ host.getIpAddress()
+															+ ":" + sIndex) != null) {
+												beforeOctets = ShareData
+														.getUtilhdxdata(desc1[j]
+																+ ":"
+																+ host.getIpAddress()
+																+ ":" + sIndex);
+												utilfalg = String
+														.valueOf(beforeOctets);
+												// ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
+												if (beforeOctets != 0) {
+													// ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½Îªï¿½ì³£ï¿½ï¿½ï¿½ï¿½
+													if (10 * beforeOctets <= octets) {
+														// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶Îªï¿½ì³£ï¿½ï¿½ï¿½ï¿½
 														portIPS.setUtilhdxflag("1");
 													} else {
-														ShareData.setUtilhdxdata(desc1[j]+":"+host.getIpAddress()+":"+sIndex,octets);
+														ShareData
+																.setUtilhdxdata(
+																		desc1[j]
+																				+ ":"
+																				+ host.getIpAddress()
+																				+ ":"
+																				+ sIndex,
+																		octets);
 														portIPS.setUtilhdxflag("0");
 													}
-												}else{
-													ShareData.setUtilhdxdata(desc1[j]+":"+host.getIpAddress()+":"+sIndex,octets);
+												} else {
+													ShareData
+															.setUtilhdxdata(
+																	desc1[j]
+																			+ ":"
+																			+ host.getIpAddress()
+																			+ ":"
+																			+ sIndex,
+																	octets);
 													portIPS.setUtilhdxflag("0");
 												}
-												
-											}else{
-												ShareData.setUtilhdxdata(desc1[j]+":"+host.getIpAddress()+":"+sIndex,octets);
+
+											} else {
+												ShareData
+														.setUtilhdxdata(
+																desc1[j]
+																		+ ":"
+																		+ host.getIpAddress()
+																		+ ":"
+																		+ sIndex,
+																octets);
 											}
-											// ¼ÆËã¶Ë¿ÚËÙÂÊ
+											// ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½
 											l = octets / longinterval;
-											
+
 											// yangjun
 											if (j == 0)
-												allHighInOctetsSpeed = allHighInOctetsSpeed+ new Double(l).longValue();
-											allHighOctetsSpeed = allHighOctetsSpeed + new Double(l).longValue();
+												allHighInOctetsSpeed = allHighInOctetsSpeed
+														+ new Double(l)
+																.longValue();
+											allHighOctetsSpeed = allHighOctetsSpeed
+													+ new Double(l).longValue();
 										}
-										DecimalFormat df = new DecimalFormat("#.##");// yangjun
+										DecimalFormat df = new DecimalFormat(
+												"#.##");// yangjun
 										portIPS.setUtilhdx(df.format(octets));
 										portIPS.setPercunit("%");
 										double highSpeed = 0.0;
 										if (hashHighSpeed.get(sIndex) != null) {
-											highSpeed = Double.parseDouble(hashHighSpeed.get(sIndex).toString());
+											highSpeed = Double
+													.parseDouble(hashHighSpeed
+															.get(sIndex)
+															.toString());
 										} else {
-											highSpeed = Double.parseDouble("0.0");
+											highSpeed = Double
+													.parseDouble("0.0");
 										}
 										double d = 0.0;
 										portIPS.setIfSpeed(highSpeed);
 										if (highSpeed > 0) {
-											
-											// ´ø¿íÀûÓÃÂÊ£½Á÷ËÙ¡Á8*100/ifspeed%
-											d = Arith.div(8*l*100, highSpeed);
+
+											// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½Ù¡ï¿½8*100/ifspeed%
+											d = Arith.div(8 * l * 100,
+													highSpeed);
 										}
-										portIPS.setUtilhdxPerc(Double.toString(d));
-									} 
-									octetsHash.put(desc1[j] + ":" + sIndex,interfacedata.getThevalue());
-								} 
+										portIPS.setUtilhdxPerc(Double
+												.toString(d));
+									}
+									octetsHash.put(desc1[j] + ":" + sIndex,
+											interfacedata.getThevalue());
+								}
 							}
-							packhash=ShareData.getPacksdata(host.getIpAddress()+":"+sIndex);
-							discardshash=ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex);
-							errorshash=ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex);									
-							//¼ÆËã´«ÊäµÄÊý¾Ý°ü
-							interfacedata=new Interfacecollectdata();
+							packhash = ShareData.getPacksdata(host
+									.getIpAddress() + ":" + sIndex);
+							discardshash = ShareData.getDiscardsdata(host
+									.getIpAddress() + ":" + sIndex);
+							errorshash = ShareData.getErrorsdata(host
+									.getIpAddress() + ":" + sIndex);
+							// ï¿½ï¿½ï¿½ã´«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllInCastPkts");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(allinpacks+"");
-							interfacedata.setChname("Èë¿Ú×ÜÊý¾Ý°ü");
-							
-							interfacedata=new Interfacecollectdata();
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(allinpacks + "");
+							interfacedata.setChname("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½");
+
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllInDiscards");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(indiscards+"");
-							interfacedata.setChname("Èë¿Ú×Ü¶ª°üÊý");
-							
-							interfacedata=new Interfacecollectdata();
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(indiscards + "");
+							interfacedata.setChname("ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½ï¿½ï¿½ï¿½ï¿½");
+
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllInErrors");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(inerrors+"");
-							interfacedata.setChname("Èë¿Ú´íÎó°üÊý");
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(inerrors + "");
+							interfacedata.setChname("ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 
-							String lastvalue="";
-							long lastpacks=0;
-							//Èë¿Ú´«ÊäÊý¾Ý°ü
-							if (packhash != null){
-								if(packhash.get("AllInCastPkts"+":"+sIndex)!=null)lastvalue=packhash.get("AllInCastPkts"+":"+sIndex).toString();
+							String lastvalue = "";
+							long lastpacks = 0;
+							// ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+							if (packhash != null) {
+								if (packhash
+										.get("AllInCastPkts" + ":" + sIndex) != null)
+									lastvalue = packhash.get(
+											"AllInCastPkts" + ":" + sIndex)
+											.toString();
 							}
-							
-							//È¡µÃÉÏ´Î»ñµÃµÄpacks
-							if(lastvalue!=null && !lastvalue.equals("")){										
-								lastpacks=Long.parseLong(lastvalue);									
+
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½packs
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lastpacks = Long.parseLong(lastvalue);
 							}
-							
-							//Èë¿Ú¶ª°üÂÊ
-							lastvalue="";
-							long lastdiscards=0;
-							if (discardshash != null){
-								if(discardshash.get("AllInDiscards"+":"+sIndex)!=null)lastvalue=discardshash.get("AllInDiscards"+":"+sIndex).toString();
+
+							// ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½
+							lastvalue = "";
+							long lastdiscards = 0;
+							if (discardshash != null) {
+								if (discardshash.get("AllInDiscards" + ":"
+										+ sIndex) != null)
+									lastvalue = discardshash.get(
+											"AllInDiscards" + ":" + sIndex)
+											.toString();
 							}
-							
-							//È¡µÃÉÏ´Î»ñµÃµÄpacks
-							if(lastvalue!=null && !lastvalue.equals("")){
-								lastdiscards=Long.parseLong(lastvalue);									
+
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½packs
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lastdiscards = Long.parseLong(lastvalue);
 							}
-										
-							double indiscardserc=0.0;
-							if (allinpacks ==0){
-								indiscardserc=0;
-							}else{
-								if (allinpacks-lastpacks > 0){
-									indiscardserc = (indiscards-lastdiscards)/(allinpacks-lastpacks);
-								}else{
+
+							double indiscardserc = 0.0;
+							if (allinpacks == 0) {
+								indiscardserc = 0;
+							} else {
+								if (allinpacks - lastpacks > 0) {
+									indiscardserc = (indiscards - lastdiscards)
+											/ (allinpacks - lastpacks);
+								} else {
 									indiscardserc = 0;
 								}
-								
-							}									
-							portIPS.setDiscardsPerc(Double.toString(indiscardserc));
-										
-							//Èë¿Ú´íÎóÂÊ
-							lastvalue="";
-							long lasterrors=0;
-							if (errorshash != null){
-								if(errorshash.get("AllInErrors"+":"+sIndex)!=null)lastvalue=errorshash.get("AllInErrors"+":"+sIndex).toString();
-							}									
-							//È¡µÃÉÏ´Î»ñµÃµÄerror
-							if(lastvalue!=null && !lastvalue.equals("")){
-								lasterrors=Long.parseLong(lastvalue);									
-							}																		
-							
-							double inerrorsperc=0.0;
-							if (allinpacks==0){
-								inerrorsperc=0;
-							}else{
-								if (allinpacks-lastpacks > 0){
-									inerrorsperc=(inerrors-lasterrors)/(allinpacks-lastpacks);
-								}else{
-									inerrorsperc=0;
-								}
-								
-							}									
-							portIPS.setErrorsPerc(Double.toString(inerrorsperc));
-							if(!utilfalg.equals(""))
-								utilhdxVector.addElement(portIPS);
-							lastvalue="";
-							lastpacks=0;
-							lastdiscards=0;
-							lasterrors=0;
-										
-							/* Ìí¼Óµ½ÄÚ´æÀï*/
-							if(ShareData.getPacksdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getPacksdata(host.getIpAddress()+":"+sIndex).put("AllInCastPkts"+":"+sIndex,allinpacks+"");
-							}else{
-								Hashtable hasht = new Hashtable();									
-								hasht.put("AllInCastPkts"+":"+sIndex,allinpacks+"");
-								ShareData.setPacksdata(host.getIpAddress()+":"+sIndex,hasht);
-							}					
-							
-							if(ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex).put("AllInDiscards"+":"+sIndex,indiscards+"");
-							}else{
-								Hashtable tempDiscards = new Hashtable();
-								tempDiscards.put("AllInDiscards"+":"+sIndex,indiscards+"");
-								ShareData.setDiscardsdata(host.getIpAddress()+":"+sIndex,tempDiscards);
+
 							}
-							
-							if(ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex).put("AllInErrors"+":"+sIndex,inerrors+"");
-							}else{
-								Hashtable errHash = new Hashtable();
-								errHash.put("AllInErrors"+":"+sIndex,inerrors+"");
-								ShareData.setErrorsdata(host.getIpAddress()+":"+sIndex,errHash);
+							portIPS.setDiscardsPerc(Double
+									.toString(indiscardserc));
+
+							// ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
+							lastvalue = "";
+							long lasterrors = 0;
+							if (errorshash != null) {
+								if (errorshash
+										.get("AllInErrors" + ":" + sIndex) != null)
+									lastvalue = errorshash.get(
+											"AllInErrors" + ":" + sIndex)
+											.toString();
+							}
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½error
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lasterrors = Long.parseLong(lastvalue);
 							}
 
-						} 
+							double inerrorsperc = 0.0;
+							if (allinpacks == 0) {
+								inerrorsperc = 0;
+							} else {
+								if (allinpacks - lastpacks > 0) {
+									inerrorsperc = (inerrors - lasterrors)
+											/ (allinpacks - lastpacks);
+								} else {
+									inerrorsperc = 0;
+								}
+
+							}
+							portIPS.setErrorsPerc(Double.toString(inerrorsperc));
+							if (!utilfalg.equals(""))
+								utilhdxVector.addElement(portIPS);
+							lastvalue = "";
+							lastpacks = 0;
+							lastdiscards = 0;
+							lasterrors = 0;
+
+							/* ï¿½ï¿½Óµï¿½ï¿½Ú´ï¿½ï¿½ï¿½ */
+							if (ShareData.getPacksdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getPacksdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllInCastPkts" + ":" + sIndex,
+												allinpacks + "");
+							} else {
+								Hashtable hasht = new Hashtable();
+								hasht.put("AllInCastPkts" + ":" + sIndex,
+										allinpacks + "");
+								ShareData.setPacksdata(host.getIpAddress()
+										+ ":" + sIndex, hasht);
+							}
+
+							if (ShareData.getDiscardsdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getDiscardsdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllInDiscards" + ":" + sIndex,
+												indiscards + "");
+							} else {
+								Hashtable tempDiscards = new Hashtable();
+								tempDiscards.put(
+										"AllInDiscards" + ":" + sIndex,
+										indiscards + "");
+								ShareData.setDiscardsdata(host.getIpAddress()
+										+ ":" + sIndex, tempDiscards);
+							}
+
+							if (ShareData.getErrorsdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getErrorsdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllInErrors" + ":" + sIndex,
+												inerrors + "");
+							} else {
+								Hashtable errHash = new Hashtable();
+								errHash.put("AllInErrors" + ":" + sIndex,
+										inerrors + "");
+								ShareData.setErrorsdata(host.getIpAddress()
+										+ ":" + sIndex, errHash);
+							}
+
+						}
 					}
 				}
 
 				if (valueArray3 != null) {
 					for (int i = 0; i < valueArray3.length; i++) {
 						alloutpacks = 0;
-						outupacks = 0;// ³ö¿Úµ¥Ïò
-						outnupacks = 0;// ·Çµ¥Ïò
+						outupacks = 0;// ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½
+						outnupacks = 0;// ï¿½Çµï¿½ï¿½ï¿½
 						outdiscards = 0;
 						outerrors = 0;
-						
+
 						String sIndex = (String) tempHash.get(i);
 						if (tempV.contains(sIndex)) {
-							Calendar cal=null;
+							Calendar cal = null;
 							for (int j = 0; j < 5; j++) {
 								if (valueArray3[i][j] != null) {
 									String sValue = valueArray3[i][j];
 									interfacedata = new Interfacecollectdata();
 									interfacedata.setThevalue(sValue);
-									if (j==1 || j==2){
-										//³ö¿Ú¹ã²¥Êý¾Ý°ü,³ö¿Ú¶à²¥Êý¾Ý°ü												
-										if (sValue != null){
-											alloutpacks=alloutpacks+Long.parseLong(sValue);
-											cal=(Calendar)hash.get("collecttime");
-											long timeInMillis=0;
-											if(cal!=null)timeInMillis=cal.getTimeInMillis();
-											long longinterval=(date.getTimeInMillis()-timeInMillis)/1000;
-											
-											outpacks=new OutPkts();
-											outpacks.setIpaddress(host.getIpAddress());
-											outpacks.setCollecttime(sdf.format(date.getTime()));
+									if (j == 1 || j == 2) {
+										// ï¿½ï¿½ï¿½Ú¹ã²¥ï¿½ï¿½ï¿½Ý°ï¿½,ï¿½ï¿½ï¿½Ú¶à²¥ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
+											alloutpacks = alloutpacks
+													+ Long.parseLong(sValue);
+											cal = (Calendar) hash
+													.get("collecttime");
+											long timeInMillis = 0;
+											if (cal != null)
+												timeInMillis = cal
+														.getTimeInMillis();
+											long longinterval = (date
+													.getTimeInMillis() - timeInMillis) / 1000;
+
+											outpacks = new OutPkts();
+											outpacks.setIpaddress(host
+													.getIpAddress());
+											outpacks.setCollecttime(sdf
+													.format(date.getTime()));
 											outpacks.setCategory("Interface");
-											String chnameBand="";
-											if(j==1){
+											String chnameBand = "";
+											if (j == 1) {
 												outpacks.setEntity("ifHCOutMulticastPkts");
-												chnameBand="¶à²¥";
+												chnameBand = "ï¿½à²¥";
 											}
-											if(j==2){
+											if (j == 2) {
 												outpacks.setEntity("ifHCOutBroadcastPkts");
-												chnameBand="¹ã²¥";
+												chnameBand = "ï¿½ã²¥";
 											}
 											outpacks.setSubentity(sIndex);
 											outpacks.setRestype("dynamic");
-											outpacks.setUnit("");	
+											outpacks.setUnit("");
 											outpacks.setChname(chnameBand);
-											BigDecimal currentPacks=new BigDecimal(sValue);												
-											BigDecimal lastPacks=new BigDecimal(0);	
-											BigDecimal l=new BigDecimal(0);												
-													
-											//Èç¹ûµ±Ç°²É¼¯Ê±¼äÓëÉÏ´Î²É¼¯Ê±¼äµÄ²îÐ¡ÓÚ²É¼¯¼ä¸ôÁ½±¶£¬Ôò¼ÆËã´ø¿íÀûÓÃÂÊ£¬·ñÔò´ø¿íÀûÓÃÂÊÎª0£»
-											if(longinterval<2*interval){
-												String lastvalue="";
-												if(hash.get(desc1[j]+":"+sIndex)!=null){
-													lastvalue=hash.get(desc1[j]+":"+sIndex).toString();
-												}else{
-													lastvalue="0";
+											BigDecimal currentPacks = new BigDecimal(
+													sValue);
+											BigDecimal lastPacks = new BigDecimal(
+													0);
+											BigDecimal l = new BigDecimal(0);
+
+											if (longinterval < 2 * interval) {
+												String lastvalue = "";
+												if (hash.get(desc1[j] + ":"
+														+ sIndex) != null) {
+													lastvalue = hash.get(
+															desc1[j] + ":"
+																	+ sIndex)
+															.toString();
+												} else {
+													lastvalue = "0";
 												}
-												//È¡µÃÉÏ´Î»ñµÃµÄOctets
-												if(lastvalue!=null && !lastvalue.equals("")){
-													lastPacks=new BigDecimal(lastvalue);
-												}else{
-													lastPacks = new BigDecimal("0");
+												// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½Octets
+												if (lastvalue != null
+														&& !lastvalue
+																.equals("")) {
+													lastPacks = new BigDecimal(
+															lastvalue);
+												} else {
+													lastPacks = new BigDecimal(
+															"0");
 												}
 											}
-											if(longinterval!=0){
-												
-												BigDecimal packsBetween=currentPacks.subtract(lastPacks);
-												l=packsBetween;
-												if(lastPacks.equals("0")){
-													l=new BigDecimal("0");
+											if (longinterval != 0) {
+
+												BigDecimal packsBetween = currentPacks
+														.subtract(lastPacks);
+												l = packsBetween;
+												if (lastPacks.equals("0")) {
+													l = new BigDecimal("0");
 												}
 											}
-											if(sValue == null){
+											if (sValue == null) {
 												outpacks.setThevalue("0");
-											}else{
-												outpacks.setThevalue(l.toString());	
+											} else {
+												outpacks.setThevalue(l
+														.toString());
 											}
 											if (cal != null)
-												outpacksVector.addElement(outpacks);	
+												outpacksVector
+														.addElement(outpacks);
 										}
-											//continue;
+										// continue;
 									}
 									if (j == 3) {
-										// ³ö¿Ú¶ªÆúµÄÊý¾Ý°ü
-										if (sValue != null){
-											outdiscards = Long.parseLong(sValue);
-										}else{
+										// ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
+											outdiscards = Long
+													.parseLong(sValue);
+										} else {
 											outdiscards = 0;
 										}
-											
+
 										continue;
 									}
 									if (j == 4) {
-										// ³ö¿Ú´íÎóµÄÊý¾Ý°ü
-										if (sValue != null){
+										// ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+										if (sValue != null) {
 											outerrors = Long.parseLong(sValue);
-										}else{
+										} else {
 											outerrors = 0;
 										}
-											
+
 										continue;
 									}
-									
-									// ¼ÆËãÃ¿¸ö¶Ë¿ÚÁ÷ËÙ¼°ÀûÓÃÂÊ
+
+									// ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 									if (j == 0) {
 										long timeInMillis = 0;
-										cal=(Calendar)hash.get("collecttime");
+										cal = (Calendar) hash
+												.get("collecttime");
 										if (cal != null)
-											timeInMillis = cal.getTimeInMillis();
-										long longinterval = (date.getTimeInMillis() - timeInMillis) / 1000;
+											timeInMillis = cal
+													.getTimeInMillis();
+										long longinterval = (date
+												.getTimeInMillis() - timeInMillis) / 1000;
 										portIPS = new PortIPS();
-										portIPS.setIpaddress(host.getIpAddress());
-										portIPS.setCollecttime(sdf.format(date.getTime()));
+										portIPS.setIpaddress(host
+												.getIpAddress());
+										portIPS.setCollecttime(sdf.format(date
+												.getTime()));
 										portIPS.setCategory("Interface");
 										if (j == 0) {
-											portIPS.setEntity("³ö¿Ú");
+											portIPS.setEntity("ï¿½ï¿½ï¿½ï¿½");
 										}
 										portIPS.setSubentity(sIndex);
 										portIPS.setRestype("dynamic");
-										portIPS.setUtilhdxunit(unit1[1+ j]);
-										BigDecimal currentHighOctets =new BigDecimal(sValue);
-										BigDecimal lastHighOctets = new BigDecimal(0);
+										portIPS.setUtilhdxunit(unit1[1 + j]);
+										BigDecimal currentHighOctets = new BigDecimal(
+												sValue);
+										BigDecimal lastHighOctets = new BigDecimal(
+												0);
 										double l = 0.00;
 										double octets = 0.00;
-										// Èç¹ûµ±Ç°²É¼¯Ê±¼äÓëÉÏ´Î²É¼¯Ê±¼äµÄ²îÐ¡ÓÚ²É¼¯¼ä¸ôÁ½±¶£¬Ôò¼ÆËã´ø¿íÀûÓÃÂÊ£¬·ñÔò´ø¿íÀûÓÃÂÊÎª0£»
+										// ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½É¼ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Î²É¼ï¿½Ê±ï¿½ï¿½Ä²ï¿½Ð¡ï¿½Ú²É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ï¿½
 										String lastvalue = "";
 
-										if (hash.get(desc1[5 + j] + ":"+ sIndex) != null)
-											lastvalue = hash.get(desc1[5 + j] + ":"+ sIndex).toString();
-										// È¡µÃÉÏ´Î»ñµÃµÄOctets
-										if (lastvalue != null && !lastvalue.equals(""))
-											lastHighOctets =new BigDecimal(lastvalue);
+										if (hash.get(desc1[5 + j] + ":"
+												+ sIndex) != null)
+											lastvalue = hash
+													.get(desc1[5 + j] + ":"
+															+ sIndex)
+													.toString();
+										// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½Octets
+										if (lastvalue != null
+												&& !lastvalue.equals(""))
+											lastHighOctets = new BigDecimal(
+													lastvalue);
 										if (longinterval != 0) {
 											double octetsHighBetween = 0.00;
-											
-											// ÏÖÁ÷Á¿-Ç°Á÷Á¿
-											octetsHighBetween = Long.valueOf(currentHighOctets.subtract(lastHighOctets).toString());
-											octets = octetsHighBetween/(1000*1000*8);
-											if(octets<0){
-												octets=0;
+
+											// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-Ç°ï¿½ï¿½ï¿½ï¿½
+											octetsHighBetween = Long
+													.valueOf(currentHighOctets
+															.subtract(
+																	lastHighOctets)
+															.toString());
+											octets = octetsHighBetween
+													/ (1000 * 1000 * 8);
+											if (octets < 0) {
+												octets = 0;
 											}
-											//ÉÏ´ÎÁ÷Á¿
-											double beforeOctets=0.00;
-											if(ShareData.getUtilhdxdata(desc1[5+j]+":"+host.getIpAddress()+":"+sIndex)!=null){
-												beforeOctets= ShareData.getUtilhdxdata(desc1[5+j]+":"+host.getIpAddress()+":"+sIndex);
-												utilfalg=String.valueOf(beforeOctets);
-												//ÉÏ´ÎÁ÷Á¿¶¼²»Îª0
-												if (beforeOctets!=0) {
-													//´óÓÚ10±¶ÎªÒì³£Á÷Á¿
-													if ((10*beforeOctets)<=octets ){
-														//¸ø²åÈë±êÊ¶ÎªÒì³£Á÷Á¿
+											// ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½
+											double beforeOctets = 0.00;
+											if (ShareData
+													.getUtilhdxdata(desc1[5 + j]
+															+ ":"
+															+ host.getIpAddress()
+															+ ":" + sIndex) != null) {
+												beforeOctets = ShareData
+														.getUtilhdxdata(desc1[5 + j]
+																+ ":"
+																+ host.getIpAddress()
+																+ ":" + sIndex);
+												utilfalg = String
+														.valueOf(beforeOctets);
+												// ï¿½Ï´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
+												if (beforeOctets != 0) {
+													// ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½Îªï¿½ì³£ï¿½ï¿½ï¿½ï¿½
+													if ((10 * beforeOctets) <= octets) {
+														// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶Îªï¿½ì³£ï¿½ï¿½ï¿½ï¿½
 														portIPS.setUtilhdxflag("1");
 													} else {
-														ShareData.setUtilhdxdata(desc1[5+j]+":"+host.getIpAddress()+":"+sIndex,octets);
+														ShareData
+																.setUtilhdxdata(
+																		desc1[5 + j]
+																				+ ":"
+																				+ host.getIpAddress()
+																				+ ":"
+																				+ sIndex,
+																		octets);
 														portIPS.setUtilhdxflag("0");
 													}
 												} else {
-													ShareData.setUtilhdxdata(desc1[5+j]+":"+host.getIpAddress()+":"+sIndex,octets);
+													ShareData
+															.setUtilhdxdata(
+																	desc1[5 + j]
+																			+ ":"
+																			+ host.getIpAddress()
+																			+ ":"
+																			+ sIndex,
+																	octets);
 													portIPS.setUtilhdxflag("0");
 												}
-												
-											}else{
-												ShareData.setUtilhdxdata(desc1[5+j]+":"+host.getIpAddress()+":"+sIndex,octets);
+
+											} else {
+												ShareData
+														.setUtilhdxdata(
+																desc1[5 + j]
+																		+ ":"
+																		+ host.getIpAddress()
+																		+ ":"
+																		+ sIndex,
+																octets);
 											}
-											// ¼ÆËã¶Ë¿ÚËÙÂÊ
+											// ï¿½ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½
 											l = octets / longinterval;
-											// Í³¼Æ×Ü³öÈë×Ö½ÚÀûÓÃÂÊ,±¸ÓÃ¼ÆËã£¨³ö¡¢Èë¡¢×ÛºÏ£©´ø¿íÀûÓÃÂÊ
+											// Í³ï¿½ï¿½ï¿½Ü³ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½Ã¼ï¿½ï¿½ã£¨ï¿½ï¿½ï¿½ï¿½ï¿½ë¡¢ï¿½ÛºÏ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 											if (j == 0)
-												allHighOutOctetsSpeed = allHighOutOctetsSpeed+ new Double(l).longValue();
-											allHighOctetsSpeed = allHighOctetsSpeed + new Double(l).longValue();
+												allHighOutOctetsSpeed = allHighOutOctetsSpeed
+														+ new Double(l)
+																.longValue();
+											allHighOctetsSpeed = allHighOctetsSpeed
+													+ new Double(l).longValue();
 
 										}
-										DecimalFormat df = new DecimalFormat("#.##");
+										DecimalFormat df = new DecimalFormat(
+												"#.##");
 										portIPS.setUtilhdx(df.format(octets));
-										
+
 										portIPS.setPercunit("%");
 										double highSpeed = 0.0;
 										if (hashHighSpeed.get(sIndex) != null) {
-											highSpeed = Double.parseDouble(hashHighSpeed.get(sIndex).toString());
+											highSpeed = Double
+													.parseDouble(hashHighSpeed
+															.get(sIndex)
+															.toString());
 										} else {
-											highSpeed = Double.parseDouble("0.0");
+											highSpeed = Double
+													.parseDouble("0.0");
 										}
 										portIPS.setIfSpeed(highSpeed);
 										double d = 0.00;
 										if (highSpeed > 0) {
-											d = Arith.div(8*l*100, highSpeed);
+											d = Arith.div(8 * l * 100,
+													highSpeed);
 										}
-										portIPS.setUtilhdxPerc(Double.toString(d));
+										portIPS.setUtilhdxPerc(Double
+												.toString(d));
 									}
-									octetsHash.put(desc1[5 + j] + ":" + sIndex,interfacedata.getThevalue());
-								} 
+									octetsHash.put(desc1[5 + j] + ":" + sIndex,
+											interfacedata.getThevalue());
+								}
 							}
-							packhash=ShareData.getPacksdata(host.getIpAddress()+":"+sIndex);
-							discardshash=ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex);
-							errorshash=ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex);									
-							
-							interfacedata=new Interfacecollectdata();
+							packhash = ShareData.getPacksdata(host
+									.getIpAddress() + ":" + sIndex);
+							discardshash = ShareData.getDiscardsdata(host
+									.getIpAddress() + ":" + sIndex);
+							errorshash = ShareData.getErrorsdata(host
+									.getIpAddress() + ":" + sIndex);
+
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllOutCastPkts");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(alloutpacks+"");
-							interfacedata.setChname("³ö¿Ú×ÜÊý¾Ý°ü");
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(alloutpacks + "");
+							interfacedata.setChname("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½");
 
-							interfacedata=new Interfacecollectdata();
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllOutDiscards");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(outdiscards+"");
-							interfacedata.setChname("³ö¿Ú×Ü¶ª°üÊý");
-							
-							interfacedata=new Interfacecollectdata();
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(outdiscards + "");
+							interfacedata.setChname("ï¿½ï¿½ï¿½ï¿½ï¿½Ü¶ï¿½ï¿½ï¿½ï¿½ï¿½");
+
+							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date.getTime()));
+							interfacedata.setCollecttime(sdf.format(date
+									.getTime()));
 							interfacedata.setCategory("Interface");
 							interfacedata.setEntity("AllOutErrors");
-							interfacedata.setSubentity(sIndex);									
+							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("¸ö");
-							interfacedata.setThevalue(outerrors+"");
-							interfacedata.setChname("³ö¿Ú´íÎó°üÊý");
-							
-							String lastvalue="";
-							long lastpacks=0;
-										
+							interfacedata.setUnit("ï¿½ï¿½");
+							interfacedata.setThevalue(outerrors + "");
+							interfacedata.setChname("ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
+
+							String lastvalue = "";
+							long lastpacks = 0;
+
 							Packs packs = new Packs();
-							//³ö¿Ú¶ª°üÂÊ
-							lastvalue="";
-							long lastdiscards=0;
-										
-							//³ö¿Ú´íÎóÂÊ
-							lastvalue="";
-							long lasterrors=0;
-							
-							lastvalue="";
-							lastpacks=0;
-							lastdiscards=0;
-							lasterrors=0;
-							//³ö¿Ú´«ÊäÊý¾Ý°ü
-							if (packhash != null){
-								if(packhash.get("AllOutCastPkts"+":"+sIndex)!=null)lastvalue=packhash.get("AllOutCastPkts"+":"+sIndex).toString();
+							// ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½
+							lastvalue = "";
+							long lastdiscards = 0;
+
+							// ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½
+							lastvalue = "";
+							long lasterrors = 0;
+
+							lastvalue = "";
+							lastpacks = 0;
+							lastdiscards = 0;
+							lasterrors = 0;
+							// ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý°ï¿½
+							if (packhash != null) {
+								if (packhash.get("AllOutCastPkts" + ":"
+										+ sIndex) != null)
+									lastvalue = packhash.get(
+											"AllOutCastPkts" + ":" + sIndex)
+											.toString();
 							}
-							//È¡µÃÉÏ´Î»ñµÃµÄpacks
-							if(lastvalue!=null && !lastvalue.equals("")){
-								lastpacks=Long.parseLong(lastvalue);																		
-							}			
-							//¼ÆËã¶ª°üÂÊºÍ´íÎóÂÊ
-							if (discardshash != null){
-								if(discardshash.get("AllOutDiscards"+":"+sIndex)!=null)lastvalue=discardshash.get("AllOutDiscards"+":"+sIndex).toString();
-							}									
-							//È¡µÃÉÏ´Î»ñµÃµÄpacks
-							if(lastvalue!=null && !lastvalue.equals("")){
-								lastdiscards=Long.parseLong(lastvalue);									
-							}																		
-							double outdiscardserc=0.0;
-							if (alloutpacks==0){
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½packs
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lastpacks = Long.parseLong(lastvalue);
+							}
+							// ï¿½ï¿½ï¿½ã¶ªï¿½ï¿½ï¿½ÊºÍ´ï¿½ï¿½ï¿½ï¿½ï¿½
+							if (discardshash != null) {
+								if (discardshash.get("AllOutDiscards" + ":"
+										+ sIndex) != null)
+									lastvalue = discardshash.get(
+											"AllOutDiscards" + ":" + sIndex)
+											.toString();
+							}
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½packs
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lastdiscards = Long.parseLong(lastvalue);
+							}
+							double outdiscardserc = 0.0;
+							if (alloutpacks == 0) {
 								outdiscardserc = 0;
-							}else{
-								if (alloutpacks-lastpacks>0){
-									outdiscardserc = (outdiscards-lastdiscards)/(alloutpacks-lastpacks);
-								}else{
+							} else {
+								if (alloutpacks - lastpacks > 0) {
+									outdiscardserc = (outdiscards - lastdiscards)
+											/ (alloutpacks - lastpacks);
+								} else {
 									outdiscardserc = 0;
 								}
 							}
-										
-							portIPS.setDiscardsPerc(Double.toString(outdiscardserc));
-							
-							lastvalue="";
-							if (errorshash != null){
-								if(errorshash.get("AllOutErrors"+":"+sIndex)!=null)lastvalue=errorshash.get("AllOutErrors"+":"+sIndex).toString();
-							}									
-							//È¡µÃÉÏ´Î»ñµÃµÄpacks
-							if(lastvalue!=null && !lastvalue.equals("")){
-								lasterrors=Long.parseLong(lastvalue);									
-							}																											
-							double outerrorsperc=0.0;
-							if (alloutpacks>0){
-								if ((alloutpacks-lastpacks)>0){
-									outerrorsperc=(outerrors-lasterrors)/(alloutpacks-lastpacks);
-								}else{
-									outerrorsperc=0;
+
+							portIPS.setDiscardsPerc(Double
+									.toString(outdiscardserc));
+
+							lastvalue = "";
+							if (errorshash != null) {
+								if (errorshash.get("AllOutErrors" + ":"
+										+ sIndex) != null)
+									lastvalue = errorshash.get(
+											"AllOutErrors" + ":" + sIndex)
+											.toString();
+							}
+							// È¡ï¿½ï¿½ï¿½Ï´Î»ï¿½Ãµï¿½packs
+							if (lastvalue != null && !lastvalue.equals("")) {
+								lasterrors = Long.parseLong(lastvalue);
+							}
+							double outerrorsperc = 0.0;
+							if (alloutpacks > 0) {
+								if ((alloutpacks - lastpacks) > 0) {
+									outerrorsperc = (outerrors - lasterrors)
+											/ (alloutpacks - lastpacks);
+								} else {
+									outerrorsperc = 0;
 								}
-							}else{
-								outerrorsperc=0;
-							}									
-							portIPS.setErrorsPerc(Double.toString(outerrorsperc));
-							
+							} else {
+								outerrorsperc = 0;
+							}
+							portIPS.setErrorsPerc(Double
+									.toString(outerrorsperc));
+
 							if (!utilfalg.equals(""))
 								utilhdxVector.addElement(portIPS);
 
-							
-							/* Ìí¼Óµ½ÄÚ´æÀï*/
-							if(ShareData.getPacksdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getPacksdata(host.getIpAddress()+":"+sIndex).put("AllOutCastPkts"+":"+sIndex,alloutpacks+"");
-							}else{
-								Hashtable hasht = new Hashtable();									
-								hasht.put("AllOutCastPkts"+":"+sIndex,alloutpacks+"");
-								ShareData.setPacksdata(host.getIpAddress()+":"+sIndex,hasht);
-							}					
-							
-							if(ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getDiscardsdata(host.getIpAddress()+":"+sIndex).put("AllOutDiscards"+":"+sIndex,outdiscards+"");
-							}else{
-								Hashtable tempDiscards = new Hashtable();
-								tempDiscards.put("AllOutDiscards"+":"+sIndex,outdiscards+"");
-								ShareData.setDiscardsdata(host.getIpAddress()+":"+sIndex,tempDiscards);
+							/* ï¿½ï¿½Óµï¿½ï¿½Ú´ï¿½ï¿½ï¿½ */
+							if (ShareData.getPacksdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getPacksdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllOutCastPkts" + ":" + sIndex,
+												alloutpacks + "");
+							} else {
+								Hashtable hasht = new Hashtable();
+								hasht.put("AllOutCastPkts" + ":" + sIndex,
+										alloutpacks + "");
+								ShareData.setPacksdata(host.getIpAddress()
+										+ ":" + sIndex, hasht);
 							}
-							
-							if(ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex)!=null){
-								ShareData.getErrorsdata(host.getIpAddress()+":"+sIndex).put("AllOutErrors"+":"+sIndex,outerrors+"");
-							}else{
+
+							if (ShareData.getDiscardsdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getDiscardsdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllOutDiscards" + ":" + sIndex,
+												outdiscards + "");
+							} else {
+								Hashtable tempDiscards = new Hashtable();
+								tempDiscards.put("AllOutDiscards" + ":"
+										+ sIndex, outdiscards + "");
+								ShareData.setDiscardsdata(host.getIpAddress()
+										+ ":" + sIndex, tempDiscards);
+							}
+
+							if (ShareData.getErrorsdata(host.getIpAddress()
+									+ ":" + sIndex) != null) {
+								ShareData.getErrorsdata(
+										host.getIpAddress() + ":" + sIndex)
+										.put("AllOutErrors" + ":" + sIndex,
+												outerrors + "");
+							} else {
 								Hashtable errHash = new Hashtable();
-								errHash.put("AllOutErrors"+":"+sIndex,outerrors+"");
-								ShareData.setErrorsdata(host.getIpAddress()+":"+sIndex,errHash);
+								errHash.put("AllOutErrors" + ":" + sIndex,
+										outerrors + "");
+								ShareData.setErrorsdata(host.getIpAddress()
+										+ ":" + sIndex, errHash);
 							}
 						} // end for contains
 
@@ -1046,28 +1285,22 @@ public class InterfaceTask extends MonitorTask {
 		}
 		if (!(ShareData.getSharedata().containsKey(host.getIpAddress()))) {
 			Hashtable ipAllData = new Hashtable();
-			if (ipAllData == null) ipAllData = new Hashtable();
-			if (interfaceVector != null && interfaceVector.size() > 0) ipAllData.put("interface", interfaceVector);
-			if (utilhdxVector != null && utilhdxVector.size() > 0) ipAllData.put("utilhdx", utilhdxVector);
-//			if (discardspercVector != null && discardspercVector.size() > 0) ipAllData.put("discardsperc", discardspercVector);
-//			if (errorspercVector != null && errorspercVector.size() > 0) ipAllData.put("errorsperc", errorspercVector);
-//			if (packsVector != null && packsVector.size() > 0) ipAllData.put("packs", packsVector);
-//			if (inpacksVector != null && inpacksVector.size() > 0) ipAllData.put("inpacks", inpacksVector);
-//			if (outpacksVector != null && outpacksVector.size() > 0) ipAllData.put("outpacks", inpacksVector);
+			if (ipAllData == null)
+				ipAllData = new Hashtable();
+			if (interfaceVector != null && interfaceVector.size() > 0)
+				ipAllData.put("interface", interfaceVector);
+			if (utilhdxVector != null && utilhdxVector.size() > 0)
+				ipAllData.put("utilhdx", utilhdxVector);
 			ShareData.getSharedata().put(host.getIpAddress(), ipAllData);
 		} else {
-			if (interfaceVector != null && interfaceVector.size() > 0) ((Hashtable) ShareData.getSharedata().get(host.getIpAddress())) .put("interface", interfaceVector);
-//			if (utilhdxpercVector != null && utilhdxpercVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("utilhdxperc",utilhdxpercVector);
-			if (utilhdxVector != null && utilhdxVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("utilhdx",utilhdxVector);
-//			if (discardspercVector != null && discardspercVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("discardsperc",discardspercVector);
-//			if (errorspercVector != null && errorspercVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("errorsperc",errorspercVector);
-//			if (packsVector != null && packsVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("packs",packsVector);
-//			if (inpacksVector != null && inpacksVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("inpacks",inpacksVector);
-//			if (outpacksVector != null && outpacksVector.size()>0)((Hashtable)ShareData.getSharedata().get(host.getIpAddress())).put("outpacks",outpacksVector);
+			if (interfaceVector != null && interfaceVector.size() > 0)
+				((Hashtable) ShareData.getSharedata().get(host.getIpAddress()))
+						.put("interface", interfaceVector);
+			if (utilhdxVector != null && utilhdxVector.size() > 0)
+				((Hashtable) ShareData.getSharedata().get(host.getIpAddress()))
+						.put("utilhdx", utilhdxVector);
 		}
-		//returnHash.put("interface", interfaceVector); // ¶Ë¿Ú×´Ì¬
-		returnHash.put("utilhdx", utilhdxVector); // ¸Ä³É ¶Ë¿ÚÁ÷Á¿
-		System.out.println("utilhdxVector´óÐ¡========="+utilhdxVector.size());
+		returnHash.put("utilhdx", utilhdxVector); // ï¿½Ä³ï¿½ ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½
 
 		outpacksVector = null;
 		inpacksVector = null;
@@ -1077,23 +1310,21 @@ public class InterfaceTask extends MonitorTask {
 		utilhdxVector = null;
 		utilhdxpercVector = null;
 		interfaceVector = null;
-		System.out.println("--------collectdata-----1---------------");
 		NetinterfaceResultTosql tosql = new NetinterfaceResultTosql();
 		tosql.CreateResultTosql(returnHash, host.getIpAddress());
-		System.out.println("--------collectdata-----2---------------");
 		return returnHash;
 	}
 
 	public int getInterval(float d, String t) {
 		int interval = 0;
 		if (t.equals("d"))
-			interval = (int) d * 24 * 60 * 60; // ÌìÊý
+			interval = (int) d * 24 * 60 * 60; // ï¿½ï¿½ï¿½ï¿½
 		else if (t.equals("h"))
 			interval = (int) d * 60 * 60; // Ð¡Ê±
 		else if (t.equals("m"))
-			interval = (int) d * 60; // ·ÖÖÓ
+			interval = (int) d * 60; // ï¿½ï¿½ï¿½ï¿½
 		else if (t.equals("s"))
-			interval = (int) d; // Ãë
+			interval = (int) d; // ï¿½ï¿½
 		return interval;
 	}
 
@@ -1101,86 +1332,77 @@ public class InterfaceTask extends MonitorTask {
 	public void run() {
 		try {
 			int numThreads = 200;
-			try {
-				List numList = new ArrayList();
-				TaskXml taskxml = new TaskXml();
-				numList = taskxml.ListXml();
-				for (int i = 0; i < numList.size(); i++) {
-					Task task = new Task();
-					BeanUtils.copyProperties(task, numList.get(i));
-					if (task.getTaskname().equals("netcollecttask")) {
-						numThreads = task.getPolltime().intValue();
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
 			int threadInterval = 5;
-			long interval = 0;		
-			long currentTime = 0;		
-			long operateTime = 0;		
-			boolean flag;		
-			int offset = 0;		
-			long initTime = 0;	
+			long interval = 0;
+			long currentTime = 0;
+			long operateTime = 0;
+			boolean flag;
+			int offset = 0;
+			long initTime = 0;
 			ThreadPool threadPool = null;
-			
-			initTime=System.currentTimeMillis()/1000;
-			if(initTime%(60*5)==0){
-				threadPool=new ThreadPool(numThreads);
+
+			initTime = System.currentTimeMillis() / 1000;
+			if (initTime % (60 * 5) == 0) {
+				threadPool = new ThreadPool(numThreads);
 				Calendar date = Calendar.getInstance();
-				//date.setTime(new Date(initTime));
-				threadPool.runTask(createTask(node,date));
+				// date.setTime(new Date(initTime));
+				threadPool.runTask(createTask(node, date));
 				threadPool.join();
 				threadPool.close();
 				threadPool = null;
-			}else{
-				String curDate=DateUtil.getRightNow();
-				String curDayAndHour=curDate.substring(0,14);
-				String curMin = curDate.substring(14,16);
-				String curHour = curDate.substring(11,13);
-				int cu=Integer.valueOf(curMin)/5;
+			} else {
+				String curDate = DateUtil.getRightNow();
+				String curDayAndHour = curDate.substring(0, 14);
+				String curMin = curDate.substring(14, 16);
+				String curHour = curDate.substring(11, 13);
+				int cu = Integer.valueOf(curMin) / 5;
 				int ho = Integer.valueOf(curHour);
 				String inMin = "";
-				if(cu==11){
-					if(ho==23){
-						curDayAndHour=DateUtil.getDateAddByDate(curDate, 1).substring(0,11)+"00:00:00";
-					}else{
-						if(ho<9){
-							curDayAndHour=curDate.substring(0,11)+"0"+String.valueOf(ho+1)+":00:00";
-						}else{
-							curDayAndHour=curDate.substring(0,11)+String.valueOf(ho+1)+":00:00";
+				if (cu == 11) {
+					if (ho == 23) {
+						curDayAndHour = DateUtil.getDateAddByDate(curDate, 1)
+								.substring(0, 11) + "00:00:00";
+					} else {
+						if (ho < 9) {
+							curDayAndHour = curDate.substring(0, 11) + "0"
+									+ String.valueOf(ho + 1) + ":00:00";
+						} else {
+							curDayAndHour = curDate.substring(0, 11)
+									+ String.valueOf(ho + 1) + ":00:00";
 						}
-						
+
 					}
-				}else{
-					inMin=String.valueOf(((cu+1)*5));
-					curDayAndHour=curDayAndHour+inMin+":00";
+				} else {
+					inMin = String.valueOf(((cu + 1) * 5));
+					curDayAndHour = curDayAndHour + inMin + ":00";
 				}
 				try {
-					initTime=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(curDayAndHour).getTime()/1000;
+					initTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+							.parse(curDayAndHour).getTime() / 1000;
 				} catch (ParseException e1) {
-					e1.printStackTrace();	
+					e1.printStackTrace();
 				}
-				while (true) {	
+				while (true) {
 					operateTime = initTime + interval;
-					currentTime = System.currentTimeMillis()/1000;
+					currentTime = System.currentTimeMillis() / 1000;
 					flag = true;
-					while (flag) {		
-						if(currentTime == operateTime){
-							threadPool=new ThreadPool(numThreads);
+					while (flag) {
+						if (currentTime == operateTime) {
+							threadPool = new ThreadPool(numThreads);
 							Calendar date = Calendar.getInstance();
-							//date.setTime(new Date(currentTime));
-							threadPool.runTask(createTask(node,date));
+							// date.setTime(new Date(currentTime));
+							threadPool.runTask(createTask(node, date));
 							threadPool.join();
 							threadPool.close();
 							threadPool = null;
-							flag = false;				
-						}else {
-							currentTime = System.currentTimeMillis()/1000;
-						}			
-					}		
+							flag = false;
+						} else {
+							currentTime = System.currentTimeMillis() / 1000;
+						}
+					}
 					interval += threadInterval * 60;
-					currentTime = System.currentTimeMillis()/1000;		
+					currentTime = System.currentTimeMillis() / 1000;
 				}
 			}
 		} catch (Exception e) {
@@ -1191,60 +1413,60 @@ public class InterfaceTask extends MonitorTask {
 
 	}
 
-
-
 	/**
-	 * ´´½¨ÈÎÎñ
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */
-	private static Runnable createTask(final HostNode hostnode,final Calendar date) {
+	private static Runnable createTask(final HostNode hostnode,
+			final Calendar date) {
 		return new Runnable() {
 			public void run() {
 				try {
-					System.out.println("------createTask-------1---------------");
-					System.out.println("------createTask-------2---------------");
-					new InterfaceTask().collect_Data(hostnode,date);
-					System.out.println("------createTask-------3---------------");
+
+					new InterfaceTask().collect_Data(hostnode, date);
 				} catch (Exception exc) {
 					exc.printStackTrace();
 				}
 			}
 		};
 	}
-	
+
 	private static String dateIPS;
-	public static void main(String[] args) throws Exception{
+
+	public static void main(String[] args) throws Exception {
 		InterfaceTask init = new InterfaceTask();
 		init.run();
-		//String curDate=DateUtil.getRightNow();
-//		String curDate="2016-11-28 00:05:34";
-//		String curDayAndHour=curDate.substring(0,14);
-//		String curMin = curDate.substring(14,16);
-//		String curHour = curDate.substring(11,13);
-//		int cu=Integer.valueOf(curMin)/5;
-//		int ho = Integer.valueOf(curHour);
-//		String inMin = "";
-//		if(cu==11){
-//			if(ho==23){
-//				curDayAndHour=DateUtil.getDateAddByDate(curDate, 1).substring(0,11)+"00:00:00";
-//			}else{
-//				if(ho<9){
-//					curDayAndHour=curDate.substring(0,11)+"0"+String.valueOf(ho+1)+":00:00";
-//				}else{
-//					curDayAndHour=curDate.substring(0,11)+String.valueOf(ho+1)+":00:00";
-//				}
-//				
-//			}
-//		}else{
-//			inMin=String.valueOf(((cu+1)*5));
-//			curDayAndHour=curDayAndHour+inMin+":00";
-//		}
-//		try {
-//			Long initTime=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(curDayAndHour).getTime()/1000;
-//		} catch (ParseException e1) {
-//			e1.printStackTrace();	
-//		}	
-//		System.out.println(curDayAndHour);
-//		System.out.println(initTime1);
-			
+		// String curDate=DateUtil.getRightNow();
+		// String curDate="2016-11-28 00:05:34";
+		// String curDayAndHour=curDate.substring(0,14);
+		// String curMin = curDate.substring(14,16);
+		// String curHour = curDate.substring(11,13);
+		// int cu=Integer.valueOf(curMin)/5;
+		// int ho = Integer.valueOf(curHour);
+		// String inMin = "";
+		// if(cu==11){
+		// if(ho==23){
+		// curDayAndHour=DateUtil.getDateAddByDate(curDate,
+		// 1).substring(0,11)+"00:00:00";
+		// }else{
+		// if(ho<9){
+		// curDayAndHour=curDate.substring(0,11)+"0"+String.valueOf(ho+1)+":00:00";
+		// }else{
+		// curDayAndHour=curDate.substring(0,11)+String.valueOf(ho+1)+":00:00";
+		// }
+		//
+		// }
+		// }else{
+		// inMin=String.valueOf(((cu+1)*5));
+		// curDayAndHour=curDayAndHour+inMin+":00";
+		// }
+		// try {
+		// Long initTime=new
+		// SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(curDayAndHour).getTime()/1000;
+		// } catch (ParseException e1) {
+		// e1.printStackTrace();
+		// }
+		// System.out.println(curDayAndHour);
+		// System.out.println(initTime1);
+
 	}
 }

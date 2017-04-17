@@ -1,12 +1,3 @@
-/**
- * <p>Description:与nodedao都是操作表nms_topo_node,但nodedao主要用于发现</p>
- * <p>Description:而toponodedao主要用于页面操作</p>
- * <p>Company: dhcc.com</p>
- * @author afunms
- * @project afunms
- * @date 2006-09-20
- */
-
 package com.afunms.topology.dao;
 
 import java.sql.ResultSet;
@@ -29,13 +20,7 @@ public class HostNodeDao extends BaseDao implements DaoInterface
    }
    
 
-   /**
-    * 查找相同ip的网元
-    * @param key
-    * @param value
-    * @return
-    *  konglq
-    */
+  
    public List findBynode(String key,String value)
    {	  
 	   return findByCriteria("select * from topo_host_node where " + key + " = '" + value + "'");   
@@ -53,7 +38,6 @@ public class HostNodeDao extends BaseDao implements DaoInterface
    public List loadNetwork(int nodetypeflag)
    {
 	   if(nodetypeflag == 1){
-		   ////网络设备
 		   return findByCriteria("select * from topo_host_node where managed = 1 and (category<4 or category=7 or category=8) order by ip_long"); 
    		}else 
 		   return findByCriteria("select * from topo_host_node where category<4 or category=7 order by ip_long");
@@ -83,7 +67,7 @@ public class HostNodeDao extends BaseDao implements DaoInterface
    
    public List loadIsMonitoredNode()
    {
-	   return findByCriteria("select distinct thn.id,thn.ip_address,thn.community from TOPO_HOST_NODE thn,topo_interface ti where thn.ip_address=ti.node_id"); 
+	   return findByCriteria("select id,ip_address,community from TOPO_HOST_NODE "); 
    } 
    public List loadNodeInfo(String ip)
    {
@@ -108,39 +92,8 @@ public class HostNodeDao extends BaseDao implements DaoInterface
        try
        {
 		   vo.setId(rs.getInt("id"));
-//		   vo.setAssetid(rs.getString("asset_id"));
-//		   vo.setLocation(rs.getString("location"));
 		   vo.setIpAddress(rs.getString("ip_address"));
-//		   vo.setIpLong(rs.getLong("ip_long"));
-//		   vo.setSysName(rs.getString("sys_name"));
-//		   vo.setAlias(rs.getString("alias"));
-//		   vo.setNetMask(rs.getString("net_mask"));
-//		   vo.setSysDescr(rs.getString("sys_descr"));
-//		   vo.setSysLocation(rs.getString("sys_location"));
-//		   vo.setSysContact(rs.getString("sys_contact"));
-//		   vo.setSysOid(rs.getString("sys_oid"));
 		   vo.setCommunity(rs.getString("community"));
-//		   vo.setWriteCommunity(rs.getString("write_community"));
-//		   vo.setSnmpversion(rs.getInt("snmpversion"));
-//		   vo.setTransfer(rs.getInt("transfer"));
-//		   vo.setCategory(rs.getInt("category"));		   
-//		   vo.setManaged(rs.getInt("managed")==1?true:false);
-//		   vo.setType(rs.getString("type"));
-//		   vo.setSuperNode(rs.getInt("super_node"));
-//		   vo.setLocalNet(rs.getInt("local_net"));
-//		   vo.setLayer(rs.getInt("layer"));
-//		   vo.setBridgeAddress(rs.getString("bridge_address"));
-//		   vo.setStatus(rs.getInt("status"));
-//		   vo.setDiscovertatus(rs.getInt("discoverstatus"));
-//		   vo.setOstype(rs.getInt("ostype"));
-//		   vo.setCollecttype(rs.getInt("collecttype"));
-//		   vo.setSendemail(rs.getString("sendemail"));
-//		   vo.setSendmobiles(rs.getString("sendmobiles"));
-//		   vo.setSendphone(rs.getString("sendphone"));
-//		   vo.setBid(rs.getString("bid"));
-//		   vo.setEndpoint(rs.getInt("endpoint"));
-//		   vo.setSupperid(rs.getInt("supperid"));//snow add at 2010-05-18
-		   //SysLogger.info(vo.getSendemail()+"==="+vo.getBid());
        }
        catch(Exception e)
        {

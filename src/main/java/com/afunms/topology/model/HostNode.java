@@ -24,33 +24,70 @@ public class HostNode extends BaseVo
 	private long ipLong;	
 	private String sysName;
 	private String alias;
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HostNode other = (HostNode) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
 	private String netMask;  
 	private String sysDescr;
-	protected String sysLocation;  //ÏµÍ³Î»ÖÃ
-    protected String sysContact;  //ÏµÍ³ÁªÏµÈË
+	protected String sysLocation;  //ÏµÍ³Î»ï¿½ï¿½
+    protected String sysContact;  //ÏµÍ³ï¿½ï¿½Ïµï¿½ï¿½
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "HostNode [id=" + id + ", ipAddress=" + ipAddress
+				+ ", community=" + community + ", managed=" + managed + "]";
+	}
+
 	private String sysOid;  
 	private String community;
 	private String writeCommunity; 
 	private int snmpversion;
 	private int transfer;
-	private String type;     //ÀàÐÍ
+	private String type;     //ï¿½ï¿½ï¿½ï¿½
 	private int category;  
 	private int localNet;	
 	private boolean managed;
 	private String bridgeAddress;
 	private int status;//×´Ì¬
-	private int superNode;    //ÉÏÒ»¼¶½ÚµãµÄid
-	private int layer;        //²ã
-	private int discoverstatus;//´æ´¢¶à´ÎÖØ¸´·¢ÏÖµÄ×´Ì¬
-	private int collecttype;//Êý¾Ý²É¼¯·½Ê½  1:snmp 2:shell
-	private int ostype;//²Ù×÷ÏµÍ³ÀàÐÍ  1:snmp 2:shell
+	private int superNode;    //ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Úµï¿½ï¿½id
+	private int layer;        //ï¿½ï¿½
+	private int discoverstatus;//ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½Öµï¿½×´Ì¬
+	private int collecttype;//ï¿½ï¿½ï¿½Ý²É¼ï¿½ï¿½ï¿½Ê½  1:snmp 2:shell
+	private int ostype;//ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½  1:snmp 2:shell
 	private String sendmobiles;
 	private String sendemail;
 	private String sendphone;
 	private String bid;
-	private int endpoint;//Ä©¶ËÉè±¸
-	private int supperid;//¹©Ó¦ÉÌid snow add at 2010-5-18
+	private int endpoint;//Ä©ï¿½ï¿½ï¿½è±¸
+	private int supperid;//ï¿½ï¿½Ó¦ï¿½ï¿½id snow add at 2010-5-18
 	private int hasDetected;
 	private boolean isDiscovered;   
 	private boolean linkAnalysed;	
@@ -59,10 +96,10 @@ public class HostNode extends BaseVo
 	private int completSwitchs;
 	private boolean isRouter;
 	private List<String> vlanCommunities;
-	private List ifEntityList=null; //ËùÓÐ¶Ë¿Ú
-	private List aliasIPs;//IP±ðÃû
-	private List aliasIfEntitys;//IP±ðÃû
-	protected String mac;       //MACµØÖ·
+	private List ifEntityList=null; //ï¿½ï¿½ï¿½Ð¶Ë¿ï¿½
+	private List aliasIPs;//IPï¿½ï¿½ï¿½ï¿½
+	private List aliasIfEntitys;//IPï¿½ï¿½ï¿½ï¿½
+	protected String mac;       //MACï¿½ï¿½Ö·
 	public String getMac() {
 		return mac;
 	}
@@ -87,7 +124,7 @@ public class HostNode extends BaseVo
 	public List getIfEntityList() {
 		return ifEntityList;
 	}
-	//ÉèÖÃÉè±¸µÄ½Ó¿Ú±í,²¢ÉèÖÃÉè±¸µÄIP±ðÃûÁÐ±í,²¢ÉèÖÃ¹ÜÀíIP
+	//ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½Ä½Ó¿Ú±ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½IPï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Ã¹ï¿½ï¿½ï¿½IP
 		public void setIfEntityList(List ifEntityList) {
 			this.ifEntityList = ifEntityList;
 			if(ifEntityList != null && ifEntityList.size()>0){
@@ -103,7 +140,7 @@ public class HostNode extends BaseVo
 						aliasIPs.add(ifEntity.getIpAddress());
 						//SysLogger.info(ifEntity.getIpAddress()+"===========");
 						aliasIfEntitys.add(ifEntity);
-						SysLogger.info(ipAddress+"µÄIP±ðÃûÎª:"+ifEntity.getIpAddress());
+						SysLogger.info(ipAddress+"ï¿½ï¿½IPï¿½ï¿½ï¿½ï¿½Îª:"+ifEntity.getIpAddress());
 					}
 				}
 			}
@@ -360,7 +397,7 @@ public class HostNode extends BaseVo
            switchIds = "" + id;
         else
            switchIds += "," + id;
-        SysLogger.info(ipAddress + "¼ÓÈëÒ»½»»»,id=" + id);
+        SysLogger.info(ipAddress + "ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½,id=" + id);
     }
     
     public String getSwitchIds()
@@ -377,7 +414,7 @@ public class HostNode extends BaseVo
 	}
     
     /**
-     * °´½Ó¿ÚË÷ÒýÕÒµ½½Ó¿Ú
+     * ï¿½ï¿½ï¿½Ó¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½Ó¿ï¿½
      */
     public IfEntity getIfEntityByIndex(String ifIndex)
     {    
@@ -395,13 +432,13 @@ public class HostNode extends BaseVo
     		}	
     	}	
         if(ifEntity == null)    	    	
-		   SysLogger.info(ipAddress + "ÖÐÃ»ÓÐË÷ÒýÎª" + ifIndex + "µÄ½Ó¿Ú");
+		   SysLogger.info(ipAddress + "ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª" + ifIndex + "ï¿½Ä½Ó¿ï¿½");
         
 		return ifEntity;
     }
     
     /**
-     * °´¶Ë¿ÚÕÒµ½Ò»¸ö½Ó¿Ú
+     * ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½Òµï¿½Ò»ï¿½ï¿½ï¿½Ó¿ï¿½
      */
     public IfEntity getIfEntityByPort(String port)
     {
@@ -420,12 +457,12 @@ public class HostNode extends BaseVo
     		}	
     	}
         if(ifEntity == null)    	    	
- 		   SysLogger.info(ipAddress + "ÖÐÃ»ÓÐ¶Ë¿ÚÎª" + port + "µÄ½Ó¿Ú");    	
+ 		   SysLogger.info(ipAddress + "ï¿½ï¿½Ã»ï¿½Ð¶Ë¿ï¿½Îª" + port + "ï¿½Ä½Ó¿ï¿½");    	
     	return ifEntity;
     } 
     
     /**
-     * °´ÃèÊöÕÒµ½Ò»¸ö½Ó¿Ú
+     * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½Ò»ï¿½ï¿½ï¿½Ó¿ï¿½
      */
     public IfEntity getIfEntityByDesc(String desc)
     {
@@ -444,11 +481,11 @@ public class HostNode extends BaseVo
     		}	
     	}
         if(ifEntity == null)    	    	
- 		   SysLogger.info(ipAddress + "ÖÐÃ»ÓÐ¶Ë¿ÚÃèÊöÎª" + desc + "µÄ½Ó¿Ú");    	
+ 		   SysLogger.info(ipAddress + "ï¿½ï¿½Ã»ï¿½Ð¶Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½Îª" + desc + "ï¿½Ä½Ó¿ï¿½");    	
     	return ifEntity;
     }
     /**
-     * °´IPÕÒµ½½Ó¿Ú
+     * ï¿½ï¿½IPï¿½Òµï¿½ï¿½Ó¿ï¿½
      */
     public IfEntity getIfEntityByIP(String ip)
     {    
@@ -467,7 +504,7 @@ public class HostNode extends BaseVo
     				String IPS[] = obj.getIpList().split(",");
     				for(int k=0;k<IPS.length;k++)
     				{
-    					//SysLogger.info(this.getIpAddress()+"º¬ÓÐ½Ó¿ÚµØÖ·"+IPS[k]+"===="+ip);
+    					//SysLogger.info(this.getIpAddress()+"ï¿½ï¿½ï¿½Ð½Ó¿Úµï¿½Ö·"+IPS[k]+"===="+ip);
     					if(IPS[k].equalsIgnoreCase(ip))
     					{
     						ifEntity = obj;
@@ -479,7 +516,7 @@ public class HostNode extends BaseVo
     			}
     			else
     			{
-    				//SysLogger.info(this.getIpAddress()+"º¬ÓÐ½Ó¿ÚµØÖ·"+obj.getIpList()+"====="+ip);
+    				//SysLogger.info(this.getIpAddress()+"ï¿½ï¿½ï¿½Ð½Ó¿Úµï¿½Ö·"+obj.getIpList()+"====="+ip);
     				if(obj.getIpList().equalsIgnoreCase(ip))
     				{
     					ifEntity = obj;

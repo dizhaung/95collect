@@ -1,24 +1,16 @@
-/**
- * 
- * ¸ù¾İXMLµÄTASKĞÅÏ¢À´½¨Á¢ÈÎÎñ¶ÔÏó
- * ²¢°ÑÈÎÎñ¶ÔÏó±£´æÔÚÁĞ±íTaskListÖĞ
- * 
- * Ò»¸ö½¨Á¢¶¨Ê±ÈÎÎñ¶ÔÏó¡£
- * Ò»¸öÊÇ¿ÉÒÔ´ÓÈËÎïÁĞ±íÖĞ°ÑÈÎÎñ¶ÔÏó×¢Ïú
- */
 package com.gathertask;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
 import com.afunms.common.util.ShareData;
 import com.afunms.polling.task.InterfaceTask;
-import com.afunms.polling.task.PingTask;
-import com.afunms.polling.task.PortInfoTask;
 import com.afunms.topology.dao.HostInterfaceDao;
 import com.afunms.topology.dao.HostNodeDao;
 import com.afunms.topology.model.HostNode;
@@ -31,8 +23,8 @@ public class TaskManager {
 	
 	private Logger logger = Logger.getLogger(TaskManager.class);
 	/**
-	 * ½¨Á¢Ò»¸öÎ¬»¤½ø³Ì
-	 * 5·ÖÖÓ¶¨Ê±¼ì²éÒ»´ÎtimerÊÇ·ñĞèÒªÔËĞĞ£¬»òÊÇ¶¨Ê±Ê±¼äÒÑ¾­¸Ä±ä
+	 * å»ºç«‹ä¸€ä¸ªç»´æŠ¤è¿›ç¨‹
+	 * 5åˆ†é’Ÿå®šæ—¶æ£€æŸ¥ä¸€æ¬¡timeræ˜¯å¦éœ€è¦è¿è¡Œï¼Œæˆ–æ˜¯å®šæ—¶æ—¶é—´å·²ç»æ”¹å˜
 	 */
 	public void CreateGahterSQLTask()
 	{
@@ -41,87 +33,79 @@ public class TaskManager {
 			GathersqlRun btask = null;
 			timer = new Timer();
 			btask = new GathersqlRun();
-			timer.schedule(btask, 0, 20 * 1000);// 5ÃëÖÓÈë¿âÒ»´Î
-			nmsmemorydate.GathersqlTaskStatus = true;// ÉèÖÃ±ê¼ÇÎªÆô¶¯
+			timer.schedule(btask, 0, 20 * 1000);// 5ç§’é’Ÿå…¥åº“ä¸€æ¬¡
+			nmsmemorydate.GathersqlTaskStatus = true;// è®¾ç½®æ ‡è®°ä¸ºå¯åŠ¨
 			nmsmemorydate.GathersqlTasktimer = timer;
 		}
    }
 	
 	/**
-	 * ¸ù¾İÊı¾İ¿â±íµÄ¼ÇÂ¼½¨Á¢²É¼¯ÈÎÎñ
+	 * æ ¹æ®æ•°æ®åº“è¡¨çš„è®°å½•å»ºç«‹é‡‡é›†ä»»åŠ¡
 	 * 
 	 */
     public void createAllTask()
     {
 		Timer timer = null;
-		// ÏÈ¼ÓÔØ×ÊÔ´ÁĞ±í
+		// å…ˆåŠ è½½èµ„æºåˆ—è¡¨
 
 		HostNodeDao nodeDao = new HostNodeDao();
-		// µÃµ½±»¼àÊÓµÄÉè±¸
+		// å¾—åˆ°è¢«ç›‘è§†çš„è®¾å¤‡
 		List nodeList = new ArrayList();
-		try {
-			nodeList = nodeDao.loadIsMonitoredNode();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			nodeDao.close();
-		}
-		Hashtable runtask = new Hashtable();
+	
+		nodeList = nodeDao.loadIsMonitoredNode();
+	
+		Map<Integer,HostNode> runtask = new Hashtable();
 		for (int i = 0; i < nodeList.size(); i++) {
 			HostNode node = (HostNode) nodeList.get(i);
 			runtask.put(node.getId(), node);
 		}
-		logger.info("=²É¼¯ÈÎÎñ¸öÊı==" + runtask.size());
-		if (null != runtask) {
-			// Èç¹û²»Îª¿ÕÔòÑ­»·
-			Enumeration allvalue = runtask.elements();
-			while (allvalue.hasMoreElements()) {
-				HostNode hostnode = (HostNode) allvalue.nextElement();
-				// ¸ù¾İHashtable ÖĞµÄ²ÎÊıÀ´ÅĞ¶ÏÀ´ÅĞ¶ÏÆô¶¯²É¼¯µÄÈÎÎñ
-				if (null != nmsmemorydate.TaskList
-						&& nmsmemorydate.TaskList.size() > 0
-						&& nmsmemorydate.TaskList.containsKey(hostnode.getId())) {
-					// Í£Ö¹Ô­À´µÄtimer£¬ÁĞ±í²¢ÇÒ´ÓÄÚ´æÖĞÉ¾³ı¶ÔÓ¦µÄ¶ÔÏó
-					timer = (Timer) nmsmemorydate.TaskList
-							.get(hostnode.getId());
-					timer.cancel();
-					nmsmemorydate.TaskList.remove(hostnode.getId());
-				} else if (!(ShareData.getResourceConfHashtable()).containsKey(hostnode.getId() + "")) {
-					// ½¨Á¢¶¨Ê±²É¼¯ÈÎÎñ
-					timer = new Timer();
-					// pingÈÎÎñ
-					PingTask pingtask = new PingTask();
-					pingtask.setNode(hostnode);
-					// interfaceÈÎÎñ
-					InterfaceTask interfaceTask = new InterfaceTask();
-					interfaceTask.setNode(hostnode);
-					
-					long in = 0;
-					if (nmsmemorydate.TaskList.size() > 300) {
-						in = (nmsmemorydate.TaskList.size() / 5) * 200;
-					} else {
-						in = nmsmemorydate.TaskList.size() * 200;
-					}
-					timer.schedule(interfaceTask, 10000L, 5 * 60 * 1000);// ping
-					//timer.schedule(pingtask, 10000L, 5 * 60 * 1000);// ping
-					// Ö´ĞĞÈÎÎñ°´·ÖÖÓÖ´ĞĞ¶¨Ê±ÈÎÎñ
-					nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// °ÑTIMER¶ÔÏóµ½ÈÎÎñ¶ÓÀï
+		
+		Iterator<HostNode> nodeIterator = runtask.values().iterator();
+		while (nodeIterator.hasNext()) {
+			HostNode hostnode =  nodeIterator.next();
+			// æ ¹æ®Hashtable ä¸­çš„å‚æ•°æ¥åˆ¤æ–­æ¥åˆ¤æ–­å¯åŠ¨é‡‡é›†çš„ä»»åŠ¡
+			if (null != nmsmemorydate.TaskList
+					&& nmsmemorydate.TaskList.size() > 0
+					&& nmsmemorydate.TaskList.containsKey(hostnode.getId())) {
+				// åœæ­¢åŸæ¥çš„timerï¼Œåˆ—è¡¨å¹¶ä¸”ä»å†…å­˜ä¸­åˆ é™¤å¯¹åº”çš„å¯¹è±¡
+				timer = (Timer) nmsmemorydate.TaskList
+						.get(hostnode.getId());
+				timer.cancel();
+				nmsmemorydate.TaskList.remove(hostnode.getId());
+			} else if (!(ShareData.getResourceConfHashtable()).containsKey(hostnode.getId() + "")) {
+				// å»ºç«‹å®šæ—¶é‡‡é›†ä»»åŠ¡
+				timer = new Timer();
+				
+				// interfaceä»»åŠ¡
+				InterfaceTask interfaceTask = new InterfaceTask();
+				interfaceTask.setNode(hostnode);
+				
+				long in = 0;
+				if (nmsmemorydate.TaskList.size() > 300) {
+					in = (nmsmemorydate.TaskList.size() / 5) * 200;
+				} else {
+					in = nmsmemorydate.TaskList.size() * 200;
 				}
+				timer.schedule(interfaceTask, 10000L, 5 * 60 * 1000);// ping
+				
+				// æ‰§è¡Œä»»åŠ¡æŒ‰åˆ†é’Ÿæ‰§è¡Œå®šæ—¶ä»»åŠ¡
+				nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// æŠŠTIMERå¯¹è±¡åˆ°ä»»åŠ¡é˜Ÿé‡Œ
 			}
 		}
-	}
+	
+    }
     
     /**
 	 * 
-	 * ¸ù¾İid°Ñ²É¼¯ÈÎÎñÍ£Ö¹
+	 * æ ¹æ®idæŠŠé‡‡é›†ä»»åŠ¡åœæ­¢
 	 * 
 	 * @param id
 	 */
     public synchronized void cancelTask(String id)
     {
-    	System.out.println("====Í£Ö¹ÈÎÎñ=="+id);
+    	System.out.println("====åœæ­¢ä»»åŠ¡=="+id);
     	if(null!=nmsmemorydate.TaskList.get(id) ){
-    		((Timer) nmsmemorydate.TaskList.get(id+"")).cancel();//×¢Ïú¸ÃÈÎÎñ
+    		((Timer) nmsmemorydate.TaskList.get(id+"")).cancel();//æ³¨é”€è¯¥ä»»åŠ¡
     		nmsmemorydate.TaskList.remove(id+"");
     	}
     }
@@ -129,10 +113,10 @@ public class TaskManager {
     
     public void checkInterfaceTask(){
     	Timer timer = null;
-		// ÏÈ¼ÓÔØ×ÊÔ´ÁĞ±í
+		// å…ˆåŠ è½½èµ„æºåˆ—è¡¨
 
 		HostInterfaceDao nodeDao = new HostInterfaceDao();
-		// µÃµ½±»¼àÊÓµÄÉè±¸
+		// å¾—åˆ°è¢«ç›‘è§†çš„è®¾å¤‡
 		List nodeList = new ArrayList();
 		try {
 			nodeList = nodeDao.loadAll();
@@ -146,32 +130,25 @@ public class TaskManager {
 			HostNode node = (HostNode) nodeList.get(i);
 			runtask.put(node.getId(), node);
 		}
-		logger.info("=²É¼¯ÈÎÎñ¸öÊı==" + runtask.size());
+		logger.info("=é‡‡é›†ä»»åŠ¡ä¸ªæ•°==" + runtask.size());
 		if (null != runtask) {
-			// Èç¹û²»Îª¿ÕÔòÑ­»·
+			// å¦‚æœä¸ä¸ºç©ºåˆ™å¾ªç¯
 			Enumeration allvalue = runtask.elements();
 			while (allvalue.hasMoreElements()) {
 				HostNode hostnode = (HostNode) allvalue.nextElement();
-				// ¸ù¾İHashtable ÖĞµÄ²ÎÊıÀ´ÅĞ¶ÏÀ´ÅĞ¶ÏÆô¶¯²É¼¯µÄÈÎÎñ
+				// æ ¹æ®Hashtable ä¸­çš„å‚æ•°æ¥åˆ¤æ–­æ¥åˆ¤æ–­å¯åŠ¨é‡‡é›†çš„ä»»åŠ¡
 				if (null != nmsmemorydate.TaskList
 						&& nmsmemorydate.TaskList.size() > 0
 						&& nmsmemorydate.TaskList.containsKey(hostnode.getId())) {
-					// Í£Ö¹Ô­À´µÄtimer£¬ÁĞ±í²¢ÇÒ´ÓÄÚ´æÖĞÉ¾³ı¶ÔÓ¦µÄ¶ÔÏó
+					// åœæ­¢åŸæ¥çš„timerï¼Œåˆ—è¡¨å¹¶ä¸”ä»å†…å­˜ä¸­åˆ é™¤å¯¹åº”çš„å¯¹è±¡
 					timer = (Timer) nmsmemorydate.TaskList
 							.get(hostnode.getId());
 					timer.cancel();
 					nmsmemorydate.TaskList.remove(hostnode.getId());
 				} else if (!(ShareData.getResourceConfHashtable()).containsKey(hostnode.getId() + "")) {
-					// ½¨Á¢¶¨Ê±²É¼¯ÈÎÎñ
+					// å»ºç«‹å®šæ—¶é‡‡é›†ä»»åŠ¡
 					timer = new Timer();
-					// pingÈÎÎñ
-//					PingTask pingtask = new PingTask();
-//					pingtask.setNode(hostnode);
-//					// interfaceÈÎÎñ
-//					InterfaceTask interfaceTask = new InterfaceTask();
-//					interfaceTask.setNode(hostnode);
-					
-					PortInfoTask portinfoTask = new PortInfoTask();
+	
 					//portinfoTask.
 					long in = 0;
 					if (nmsmemorydate.TaskList.size() > 300) {
@@ -179,11 +156,7 @@ public class TaskManager {
 					} else {
 						in = nmsmemorydate.TaskList.size() * 200;
 					}
-					//timer.schedule(interfaceTask, 10000L, 5 * 60 * 1000);// interface
-					//timer.schedule(pingtask, 10000L, 5 * 60 * 1000);// ping
-					//timer.schedule(portinfoTask, 10000L,24*60*60*1000);//portinfo
-																			// Ö´ĞĞÈÎÎñ°´·ÖÖÓÖ´ĞĞ¶¨Ê±ÈÎÎñ
-					nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// °ÑTIMER¶ÔÏóµ½ÈÎÎñ¶ÓÀï
+					nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// æŠŠTIMERå¯¹è±¡åˆ°ä»»åŠ¡é˜Ÿé‡Œ
 				}
 			}
 		}

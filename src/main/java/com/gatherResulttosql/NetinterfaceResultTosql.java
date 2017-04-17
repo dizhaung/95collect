@@ -15,21 +15,21 @@ import com.afunms.polling.om.*;
 public class NetinterfaceResultTosql {
 	/**
 	 * 
-	 * °Ñ²É¼¯Êý¾ÝÉú³Ésql·ÅÈëµÄÄÚ´æÁÐ±íÖÐ
+	 * ï¿½Ñ²É¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½Ð±ï¿½ï¿½ï¿½
 	 */
 	public void CreateResultTosql(Hashtable ipdata, String ip) {
 		if(ipdata.containsKey("utilhdx")){
 			String allipstr = SysUtil.doip(ip);
-			// ¶Ë¿ÚÁ÷Á¿Êý¾Ý
+			// ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			Vector portipsVector = (Vector) ipdata.get("utilhdx");
 			if (portipsVector != null && portipsVector.size() > 0) {
-				String tablename = "portips" + allipstr;
+				String tablename = "portips";
 				PortIPS portips = null;
 				for (int si = 0; si < portipsVector.size(); si++) {
 					portips = (PortIPS) portipsVector.elementAt(si);
 					if (portips.getRestype().equals("dynamic")) {
 						StringBuffer sBuffer = new StringBuffer();
-						sBuffer.append("insert into ");
+						sBuffer.append("upsert into ");
 						sBuffer.append(tablename);
 						sBuffer.append("(ipaddress,restype,category,entity,subentity,utilhdx,utilhdxperc,discardsperc,errorsperc,utilhdxunit,percunit,utilhdxflag,ifspeed,collecttime) ");
 						sBuffer.append("values('");
