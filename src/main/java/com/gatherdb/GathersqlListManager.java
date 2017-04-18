@@ -12,34 +12,34 @@ import java.util.Hashtable;
 import java.util.Vector;
 /**
  * 
- * ²É¼¯Êı¾İsqlÄÚ´æÊı¾İ¹ÜÀí¶ÔÏóÁĞ±íÓë·½·¨
+ * ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½sqlï¿½Ú´ï¿½ï¿½ï¿½ï¿½İ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½ï¿½ë·½ï¿½ï¿½
  * @author konglq
  *
  */
 public class GathersqlListManager {
 	
-	public static  Queue<String> queue = new LinkedList<String>();//¶¨Ê±Êı¾İÈë¿â
-	public static  Queue<String> queue2 = new LinkedList<String>();//¶¨Ê±Êı¾İÈë¿â
+	public static  Queue<String> queue = new LinkedList<String>();//ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	public static  Queue<String> queue2 = new LinkedList<String>();//ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public static  Hashtable<String,Vector> datatemplist = new Hashtable();
 	public static  Hashtable<String,Vector> datatemplist2 = new Hashtable();
 	public static Logger logger = Logger.getLogger(GathersqlListManager.class);
-	public static boolean qflg=true; //ÂÖÑ¯¶ÓÁĞ×´Ìå
-	public static boolean idbstatus=false;//ÊÇ·ñ´¦ÓÚÈë¿â×´Ì¬
-	public static boolean datatempflg=true;//ÂÖÑ¯¶ÓÁĞ×´Ìå
-	public static boolean idbdatatempstatus=false;//ÊÇ·ñ´¦ÓÚÈë¿â×´Ì¬
+	public static boolean qflg=true; //ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½
+	public static boolean idbstatus=false;//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+	public static boolean datatempflg=true;//ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½
+	public static boolean idbdatatempstatus=false;//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 	
-	public static  Queue<String> queue_alarm = new LinkedList<String>();//¸æ¾¯Êı¾İ¶¨Ê±Èë¿â
-	public static  Queue<String> queue2_alarm= new LinkedList<String>();//¸æ¾¯Êı¾İ¶¨Ê±Èë¿â
+	public static  Queue<String> queue_alarm = new LinkedList<String>();//ï¿½æ¾¯ï¿½ï¿½ï¿½İ¶ï¿½Ê±ï¿½ï¿½ï¿½
+	public static  Queue<String> queue2_alarm= new LinkedList<String>();//ï¿½æ¾¯ï¿½ï¿½ï¿½İ¶ï¿½Ê±ï¿½ï¿½ï¿½
 	
-	public static boolean qflg_alarm=true; //ÂÖÑ¯¶ÓÁĞ×´Ìå
-	public static boolean idbstatus_alarm=false;//ÊÇ·ñ´¦ÓÚÈë¿â×´Ì¬
-	public static boolean datatempflg_alarm=true;//ÂÖÑ¯¶ÓÁĞ×´Ìå
-	public static boolean idbdatatempstatus_alarm=false;//ÊÇ·ñ´¦ÓÚÈë¿â×´Ì¬
+	public static boolean qflg_alarm=true; //ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½
+	public static boolean idbstatus_alarm=false;//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
+	public static boolean datatempflg_alarm=true;//ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½×´ï¿½ï¿½
+	public static boolean idbdatatempstatus_alarm=false;//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 
 	/**
 	 * 
-	 * °Ñsql·ÅÈëµ½ÄÚ´æ¶ÓÁĞ£¬Èç¹û´«µİ²ÎÊıÎªDHCC-DB ±íÊ¾Êı¾İÈë¿Ú
-	 * @param sql ×Ö·û²ÎÊıÓĞ2¸ö·½Ê½£¬Ò»¸öÊÇsql£¬Ò»¸öÊÇ±íÊ¾ÊÇÈë¿Ú£¨DHCC-DB£©
+	 * ï¿½ï¿½sqlï¿½ï¿½ï¿½ëµ½ï¿½Ú´ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ²ï¿½ï¿½ï¿½ÎªDHCC-DB ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * @param sql ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½sqlï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ç±ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ú£ï¿½DHCC-DBï¿½ï¿½
 	 */
 	public  static  void Addsql(String sql)
  {
@@ -48,20 +48,18 @@ public class GathersqlListManager {
 				if (GathersqlListManager.queue.size() > 1) {
 					qflg = !qflg;
 					idbstatus = true;
-					DBManager pollmg = new DBManager();// Êı¾İ¿â¹ÜÀí¶ÔÏó
+					DBManager pollmg = new DBManager();
 					pollmg.excuteBatchSql(GathersqlListManager.queue);
 					pollmg.close();
 					pollmg = null;
 					idbstatus = false;
-					// System.out.println("=====Èë¿â¶ÓÁĞ1end=======");
 				}
 
 			} else if (qflg == false) {
 				if (GathersqlListManager.queue2.size() > 1) {
-					// System.out.println("=**=Èë¿â¶ÓÁĞ2=="+GathersqlListManager.queue2.size());
 					idbstatus = true;
 					qflg = !qflg;
-					DBManager pollmg = new DBManager();// Êı¾İ¿â¹ÜÀí¶ÔÏó
+					DBManager pollmg = new DBManager();
 					pollmg.excuteBatchSql(GathersqlListManager.queue2);
 
 					pollmg.close();
@@ -70,19 +68,16 @@ public class GathersqlListManager {
 					idbstatus = false;
 
 				}
-				// System.out.println("=====Èë¿â¶ÓÁĞ2end=======");
 
 			}
 
 		} else {
 			if (qflg) {
 				synchronized (queue) {
-					//System.out.println("==·ÅÈë¶ÓÁĞ1");
 					queue.offer(sql);
 				}
 			} else {
 				synchronized (queue2) {
-					//System.out.println("==·ÅÈë¶ÓÁĞ2");
 					queue2.offer(sql);
 				}
 			}
@@ -92,8 +87,8 @@ public class GathersqlListManager {
 	
 	/**
 	 * 
-	 * °Ñsql·ÅÈëµ½ÄÚ´æ¶ÓÁĞ£¬Èç¹û´«µİ²ÎÊıÎªDHCC-DB ±íÊ¾Êı¾İÈë¿Ú
-	 * @param sql ×Ö·û²ÎÊıÓĞ2¸ö·½Ê½£¬Ò»¸öÊÇsql£¬Ò»¸öÊÇ±íÊ¾ÊÇÈë¿Ú£¨DHCC-DB£©
+	 * ï¿½ï¿½sqlï¿½ï¿½ï¿½ëµ½ï¿½Ú´ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ²ï¿½ï¿½ï¿½ÎªDHCC-DB ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	 * @param sql ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½sqlï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ç±ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ú£ï¿½DHCC-DBï¿½ï¿½
 	 */
 	public  static  void Addsql_alarm(String sql)
 	{
@@ -106,31 +101,31 @@ public class GathersqlListManager {
 		
 		 if(qflg_alarm==true)
 		 {
-		 //System.out.println("=====Èë¿â¶ÓÁĞ1start=======");
-	     //System.out.println("=**=Èë¿â¶ÓÁĞ1=="+GathersqlListManager.queue.size());	
+		 //System.out.println("=====ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1start=======");
+	     //System.out.println("=**=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1=="+GathersqlListManager.queue.size());	
 		 if(GathersqlListManager.queue_alarm.size()>1)
 		 {
 	     qflg_alarm=!qflg_alarm;
 	     idbstatus_alarm=true;
-		 DBManager pollmg = new DBManager();// Êı¾İ¿â¹ÜÀí¶ÔÏó
+		 DBManager pollmg = new DBManager();// ï¿½ï¿½ï¿½İ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		 pollmg.excuteBatchSql(GathersqlListManager.queue_alarm);
 		 pollmg.close();
 		 pollmg=null;
 		 idbstatus_alarm=false;
-		 //System.out.println("=====Èë¿â¶ÓÁĞ1end=======");
+		 //System.out.println("=====ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1end=======");
 		 }
 		
 		 
 		 
 		 }else if(qflg_alarm==false)
 		 {
-			// System.out.println("=====Èë¿â¶ÓÁĞ2start=======");
+			// System.out.println("=====ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2start=======");
 			 if(GathersqlListManager.queue2_alarm.size()>1)
 			 {
-			 //System.out.println("=**=Èë¿â¶ÓÁĞ2=="+GathersqlListManager.queue2.size());	
+			 //System.out.println("=**=ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2=="+GathersqlListManager.queue2.size());	
 			 idbstatus_alarm=true;
 			 qflg_alarm=!qflg_alarm;
-			 DBManager pollmg = new DBManager();// Êı¾İ¿â¹ÜÀí¶ÔÏó
+			 DBManager pollmg = new DBManager();// ï¿½ï¿½ï¿½İ¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			 pollmg.excuteBatchSql(GathersqlListManager.queue2_alarm);
 			 pollmg.close();
 			 pollmg=null;
@@ -138,7 +133,7 @@ public class GathersqlListManager {
 			 idbstatus_alarm=false;
 			 
 			 }
-			 //System.out.println("=====Èë¿â¶ÓÁĞ2end=======");
+			 //System.out.println("=====ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2end=======");
 			 
 		 }
 		 
@@ -149,13 +144,13 @@ public class GathersqlListManager {
 			{
 				
 				synchronized (queue_alarm){
-			//System.out.println("==·ÅÈë¶ÓÁĞ1");	
+			//System.out.println("==ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1");	
 			queue_alarm.offer(sql);
 				}
 			}else
 			{
 				synchronized (queue2_alarm){
-			 //System.out.println("==·ÅÈë¶ÓÁĞ2");
+			 //System.out.println("==ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½2");
 			 queue2_alarm.offer(sql);
 			  }
 			}
@@ -166,9 +161,9 @@ public class GathersqlListManager {
 	
 	
 	/**
-	 * Êı¾İ·ÖÀëÄ£Ê½sqlÈë¿Ú
-	 * ·ÖÎªÁ½ÖÖÇé¿ö£¬µ±keyÎª DHCC-DB ±íÊ¾µ÷ÓÃÊı¾İÈë¿â½Ó¿Ú£¬µ±keyÖµÎªsqlµÄÉ¾³ıÓï¾äÊ±
-	 * ±íÊ¾°Ñ½á¹ûÉú³Ésql·ÅÈëµ½ÄÚ´æÁĞ±íÖĞ,ÕâÑù×öµÄÄ¿µÄÊÇÎªÁË±£Ö¤Ïß³ÌµÄ°²È«ºÍÊı¾İµÄÍêÕûĞÔ
+	 * ï¿½ï¿½ï¿½İ·ï¿½ï¿½ï¿½Ä£Ê½sqlï¿½ï¿½ï¿½
+	 * ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½keyÎª DHCC-DB ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¿Ú£ï¿½ï¿½ï¿½keyÖµÎªsqlï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½Ê±
+	 * ï¿½ï¿½Ê¾ï¿½Ñ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sqlï¿½ï¿½ï¿½ëµ½ï¿½Ú´ï¿½ï¿½Ğ±ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½Îªï¿½Ë±ï¿½Ö¤ï¿½ß³ÌµÄ°ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½İµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @param sql
 	 */
 	public  static void AdddateTempsql(String key,Vector sql)
@@ -177,7 +172,7 @@ public class GathersqlListManager {
 		{
 			
 			
-			 //System.out.println("===ÁÙÊ±Èë¿â¶ÓÁĞ="+datatempflg);
+			 //System.out.println("===ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½="+datatempflg);
 			
 			 if(datatempflg==true)
 			 {
@@ -185,7 +180,7 @@ public class GathersqlListManager {
 			 {
 				 datatempflg=!datatempflg;
 				 idbdatatempstatus=true;
-				//System.out.println("=========================99999999====¿ªÊ¼ÁÙÊ±Êı¾İÈë¿â=========="+GathersqlListManager.datatemplist.size());
+				//System.out.println("=========================99999999====ï¿½ï¿½Ê¼ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=========="+GathersqlListManager.datatemplist.size());
 				
 				 if(GathersqlListManager.datatemplist.size()>0)
 				 {
@@ -231,7 +226,7 @@ public class GathersqlListManager {
 				  it=null;
 				 }
 				  GathersqlListManager.datatemplist.clear();
-				  //System.out.println("=999999999====¿ªÊ¼ÁÙÊ±Êı¾İÈë¿â½áÊø=========="+GathersqlListManager.datatemplist.size());
+				  //System.out.println("=999999999====ï¿½ï¿½Ê¼ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=========="+GathersqlListManager.datatemplist.size());
 	
 				  idbdatatempstatus=false;
 			 }
@@ -246,7 +241,7 @@ public class GathersqlListManager {
 				 
 				 if(GathersqlListManager.datatemplist2.size()>0)
 					{
-						//System.out.println("=========================777777====¿ªÊ¼ÁÙÊ±Êı¾İÈë¿â=========="+GathersqlListManager.datatemplist.size());
+						//System.out.println("=========================777777====ï¿½ï¿½Ê¼ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=========="+GathersqlListManager.datatemplist.size());
 					     datatempflg=!datatempflg;
 					     idbdatatempstatus=true;
 						 if(GathersqlListManager.datatemplist2.size()>0)
@@ -288,7 +283,7 @@ public class GathersqlListManager {
 						  it=null;
 						 }
 						  GathersqlListManager.datatemplist2.clear();
-						  //System.out.println("=777777====¿ªÊ¼ÁÙÊ±Êı¾İÈë¿â½áÊø=========="+GathersqlListManager.datatemplist.size());
+						  //System.out.println("=777777====ï¿½ï¿½Ê¼ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½=========="+GathersqlListManager.datatemplist.size());
 			
 						  idbdatatempstatus=false;
 				 
@@ -307,27 +302,17 @@ public class GathersqlListManager {
 			if(datatempflg)
 			{
 				
-			//System.out.println("==·ÅÈëÁÙÊ±¶ÓÁĞ1");	
+			//System.out.println("==ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½1");	
 			datatemplist.put(key, sql);	
 			}else
 			{
-			 //System.out.println("==·ÅÈëÁÙÊ±¶ÓÁĞ2");
+			 //System.out.println("==ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½2");
 			 datatemplist2.put(key, sql);	
 			}
 			
 		 }
 		
 	}
-	
-	
-	public static void main(String [] arg)
-	{
-		
-		//GathersqlListManager.Runsql();
-		
-		
-		//gm.StopRunsql();
-	}
-	
+
 
 }

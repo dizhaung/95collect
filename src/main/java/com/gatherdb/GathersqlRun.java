@@ -13,7 +13,7 @@ import com.gatherdb.GathersqlListManager;
 /**
  * 
  * 
- * ¶¨Ê±°Ñ¶ÓÁĞÀïµÄÊı¾İ²åÈëÊı¾İ¿â
+ * ï¿½ï¿½Ê±ï¿½Ñ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½İ¿ï¿½
  * @author Administrator
  *
  */
@@ -25,22 +25,11 @@ public class GathersqlRun extends TimerTask{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		//System.out.println("===######=====¿ªÊ¼¶¨Ê±Êı¾İÈë¿â=="+GathersqlListManager.queue.size());
-//		if(GathersqlListManager.queue.size()>0)
-//		{
-//		 DBManager pollmg = new DBManager();// Êı¾İ¿â¹ÜÀí¶ÔÏó
-//		 pollmg.excuteBatchSql(GathersqlListManager.queue);
-//		 pollmg.close();
-//		}
-		
+
 		if(!GathersqlListManager.idbstatus)
 		{
-		   //System.out.println(GathersqlListManager.idbstatus);
 		   GathersqlListManager.Addsql("DHCC-DB");
 		}
-		//System.out.println("=idbstatus=="+GathersqlListManager.idbstatus);
-		
-		//System.out.println("===######=====Êı¾İ¶¨Ê±Èë¿â½áÊø==");
 	}
 
 }

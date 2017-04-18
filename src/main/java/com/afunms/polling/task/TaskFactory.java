@@ -28,7 +28,7 @@ public class TaskFactory {
 //		if (tasktype.equals("pingtask"))
 //			return new PingTask();
 		if (tasktype.equals("netcollecttask"))
-			return new InterfaceTask();
+			return new InterfaceTaskHC();
 		
 		return null;
 	}

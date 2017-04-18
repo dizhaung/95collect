@@ -6,6 +6,12 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.afunms.common.util.SysUtil;
 import com.afunms.common.util.SystemConstant;
 import com.afunms.polling.om.Interfacecollectdata;
@@ -13,71 +19,58 @@ import com.gatherdb.GathersqlListManager;
 import com.afunms.polling.om.*;
 
 public class NetinterfaceResultTosql {
+	private Log logger = LogFactory.getLog(NetinterfaceResultTosql.class);
 	/**
 	 * 
 	 * �Ѳɼ���������sql������ڴ��б���
 	 */
 	public void CreateResultTosql(Hashtable ipdata, String ip) {
 		if(ipdata.containsKey("utilhdx")){
-			String allipstr = SysUtil.doip(ip);
-			// �˿���������
+			
 			Vector portipsVector = (Vector) ipdata.get("utilhdx");
 			if (portipsVector != null && portipsVector.size() > 0) {
 				String tablename = "portips";
-				PortIPS portips = null;
+		
 				for (int si = 0; si < portipsVector.size(); si++) {
-					portips = (PortIPS) portipsVector.elementAt(si);
-					if (portips.getRestype().equals("dynamic")) {
-						StringBuffer sBuffer = new StringBuffer();
-						sBuffer.append("upsert into ");
-						sBuffer.append(tablename);
-						sBuffer.append("(ipaddress,restype,category,entity,subentity,utilhdx,utilhdxperc,discardsperc,errorsperc,utilhdxunit,percunit,utilhdxflag,ifspeed,collecttime) ");
-						sBuffer.append("values('");
-						sBuffer.append(ip);
-						sBuffer.append("','");
-						sBuffer.append(portips.getRestype());
-						sBuffer.append("','");
-						sBuffer.append(portips.getCategory());
-						sBuffer.append("','");
-						sBuffer.append(portips.getEntity());
-						sBuffer.append("','");
-						sBuffer.append(portips.getSubentity());
-						sBuffer.append("','");
-						sBuffer.append(portips.getUtilhdx());
-						sBuffer.append("','");
-						sBuffer.append(portips.getUtilhdxPerc());
-						sBuffer.append("','");
-						sBuffer.append(portips.getDiscardsPerc());
-						sBuffer.append("','");
-						sBuffer.append(portips.getErrorsPerc());
-						sBuffer.append("','");
-						sBuffer.append(portips.getUtilhdxunit());
-						sBuffer.append("','");
-						sBuffer.append(portips.getPercunit());
-						sBuffer.append("','");
-						sBuffer.append(portips.getUtilhdxflag());
-						sBuffer.append("','");
-						sBuffer.append(portips.getIfSpeed());
-						if ("mysql".equalsIgnoreCase(SystemConstant.DBType)) {
-							sBuffer.append("','");
-							sBuffer.append(portips.getCollecttime());
-							sBuffer.append("')");
-						} else if ("oracle"
-								.equalsIgnoreCase(SystemConstant.DBType)) {
-							sBuffer.append("',");
-							sBuffer.append("to_date('"
-									+ portips.getCollecttime()
-									+ "','YYYY-MM-DD HH24:MI:SS')");
-							sBuffer.append(")");
-						}
-						GathersqlListManager.Addsql(sBuffer.toString());
+					PortIPS portips = (PortIPS) portipsVector.elementAt(si);
+					StringBuffer sBuffer = new StringBuffer();
 
-						portips = null;
-						sBuffer = null;
+					
+					sBuffer.append("upsert into ")
+					.append(tablename)
+					.append("(ip_address,restype,category,entity,subentity,utilhdx,utilhdx_perc,discards_perc,errors_perc,utilhdx_unit,perc_unit,utilhdx_flag,ifspeed) ")
+					.append("values('")
+					.append(ip)
+					.append("','")
+					.append(portips.getRestype())
+					.append("','")
+					.append(portips.getCategory())
+					.append("','")
+					.append(portips.getEntity())
+					.append("','")
+					.append(portips.getSubentity())
+					.append("','")
+					.append(portips.getUtilhdx())
+					.append("','")
+					.append(portips.getUtilhdxPerc())
+					.append("','")
+					.append(portips.getDiscardsPerc())
+					.append("','")
+					.append(portips.getErrorsPerc())
+					.append("','")
+					.append(portips.getUtilhdxunit())
+					.append("','")
+					.append(portips.getPercunit())
+					.append("','")
+					.append(portips.getUtilhdxflag())
+					.append("','")
+					.append(portips.getIfSpeed())
+					.append("')");
+					
+						GathersqlListManager.Addsql(sBuffer.toString());
+						logger.info(sBuffer);
 					}
 				}
 			}
-			portipsVector = null;
 		}
-	}
 }

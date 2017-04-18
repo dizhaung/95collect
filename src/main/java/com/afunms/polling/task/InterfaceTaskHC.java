@@ -2,7 +2,6 @@ package com.afunms.polling.task;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,6 +11,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.afunms.common.util.Arith;
 import com.afunms.common.util.DateUtil;
@@ -19,9 +20,6 @@ import com.afunms.common.util.ShareData;
 import com.afunms.common.util.SnmpService;
 import com.afunms.common.util.SnmpUtils;
 import com.afunms.common.util.SysLogger;
-import com.afunms.common.util.SysUtil;
-import com.afunms.polling.om.DiscardsPerc;
-import com.afunms.polling.om.ErrorsPerc;
 import com.afunms.polling.om.InPkts;
 import com.afunms.polling.om.Interfacecollectdata;
 import com.afunms.polling.om.OutPkts;
@@ -29,15 +27,13 @@ import com.afunms.polling.om.Packs;
 import com.afunms.polling.om.PortIPS;
 import com.afunms.polling.om.Task;
 import com.afunms.polling.om.UtilHdx;
-import com.afunms.polling.om.UtilHdxPerc;
 import com.afunms.polling.snmp.SnmpMibConstants;
 import com.afunms.topology.dao.HostInterfaceDao;
-import com.afunms.topology.dao.HostNodeDao;
 import com.afunms.topology.model.HostNode;
 import com.afunms.topology.model.InterfaceNode;
 import com.gatherResulttosql.NetinterfaceResultTosql;
 
-public class InterfaceTask extends MonitorTask {
+public class InterfaceTaskHC extends MonitorTask {
 	public static Hashtable Interface_IfType = null;
 	static {
 		Interface_IfType = new Hashtable();
@@ -82,28 +78,25 @@ public class InterfaceTask extends MonitorTask {
 		this.node = node;
 	}
 
-	public InterfaceTask() {
+	public InterfaceTaskHC() {
 	}
 
 	public void collectData(HostNode node) {
 
 	}
 
+	private Log logger = LogFactory.getLog(InterfaceTaskHC.class);
+
 	public Hashtable collect_Data(HostNode host, Calendar date) {
 		host.setSnmpversion(1);
+		logger.info("开始采集" + host.getIpAddress() + "数据");
 		Hashtable returnHash = new Hashtable();
-		Vector interfaceVector = new Vector();
 		Vector utilhdxVector = new Vector();
-		Vector packsVector = new Vector();
 		Vector inpacksVector = new Vector();
 		Vector outpacksVector = new Vector();
-		Vector discardspercVector = new Vector();
-		Vector errorspercVector = new Vector();
-		Vector utilhdxpercVector = new Vector();
-		String utilfalg = "";
+//		String utilfalg = "";
 		try {
 			Interfacecollectdata interfacedata = null;
-			UtilHdx utilhdx = new UtilHdx();
 			PortIPS portIPS = new PortIPS();
 			InPkts inpacks = new InPkts();
 			OutPkts outpacks = new OutPkts();
@@ -111,23 +104,14 @@ public class InterfaceTask extends MonitorTask {
 			try {
 				Hashtable hash = ShareData.getOctetsdata(host.getIpAddress());
 
-				int interval = getInterval(5f, "m");
-				Hashtable hashSpeed = new Hashtable();
+				int interval = getInterval(1f, "m");
 				Hashtable hashHighSpeed = new Hashtable();
 				Hashtable octetsHash = new Hashtable();
 				if (hash == null)
 					hash = new Hashtable();
 				String[] oids = new String[] { "1.3.6.1.2.1.2.2.1.1",
 						"1.3.6.1.2.1.2.2.1.2", "1.3.6.1.2.1.2.2.1.3",
-						"1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.2.2.1.5",
-						"1.3.6.1.2.1.31.1.1.1.15" };// ifHighSpeed
-
-				String[] oids2 = new String[] { "1.3.6.1.2.1.2.2.1.6",
-						"1.3.6.1.2.1.2.2.1.7",// ifAdminStatus 6
-						"1.3.6.1.2.1.2.2.1.8",// ifOperStatus 7
-						"1.3.6.1.2.1.2.2.1.9",// ifLastChange 8
-						"1.3.6.1.2.1.31.1.1.1.1", "1.3.6.1.2.1.4.20.1.1",// ipAdEntAddr
-						"1.3.6.1.2.1.4.20.1.2" };// ipAdEntIfIndex
+						"1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.31.1.1.1.15" };// ifHighSpeed
 
 				String[] oids1 = new String[] { "1.3.6.1.2.1.31.1.1.1.6", // ifHCInOctets
 						"1.3.6.1.2.1.31.1.1.1.8",// ifHCInMulticastPkts 10
@@ -157,14 +141,6 @@ public class InterfaceTask extends MonitorTask {
 				try {
 					valueArray = SnmpUtils.getTableData(host.getIpAddress(),
 							host.getCommunity(), oids, host.getSnmpversion(),
-							3, 1000 * 30);
-				} catch (Exception e) {
-				}
-
-				String[][] valueArray2 = null;
-				try {
-					valueArray2 = SnmpUtils.getTableData(host.getIpAddress(),
-							host.getCommunity(), oids2, host.getSnmpversion(),
 							3, 1000 * 30);
 				} catch (Exception e) {
 				}
@@ -201,7 +177,6 @@ public class InterfaceTask extends MonitorTask {
 				long outdiscards = 0;
 				long outerrors = 0;
 
-				// Calendar cal=(Calendar)hash.get("collecttime");
 				HostInterfaceDao hidao = new HostInterfaceDao();
 				List hiList = null;
 				try {
@@ -219,148 +194,29 @@ public class InterfaceTask extends MonitorTask {
 						if (valueArray[i][0] == null)
 							continue;
 						String sIndex = valueArray[i][0].toString();
+						tempV.add(sIndex);
+						tempHash.put(i, sIndex);
+//						for (int h = 0; h < hiList.size(); h++) {
+//							InterfaceNode ifnode = new InterfaceNode();
+//							ifnode = (InterfaceNode) hiList.get(h);
+//							hiindex = ifnode.getIfIndex();
+//							if (hiindex.equals(sIndex)) {
+//								tempV.add(sIndex);
+//								tempHash.put(i, sIndex);
+//							}
+//						}
 
-						for (int h = 0; h < hiList.size(); h++) {
-							InterfaceNode ifnode = new InterfaceNode();
-							ifnode = (InterfaceNode) hiList.get(h);
-							hiindex = ifnode.getIfIndex();
-							if (hiindex.equals(sIndex)) {
-								tempV.add(sIndex);
-								tempHash.put(i, sIndex);
-							}
-						}
-						HostNodeDao dao = new HostNodeDao();
-						String allipstr = SysUtil.doip(host.getIpAddress());
-						int count = dao.getTableCount("PORTSTATUS" + allipstr);
-						dao.close();
-
-						for (int j = 0; j < 6; j++) {
+						for (int j = 0; j < 5; j++) {
 
 							String sValue = valueArray[i][j];
-							interfacedata = new Interfacecollectdata();
-							interfacedata.setIpaddress(host.getIpAddress());
-							interfacedata.setCollecttime(sdf.format(date
-									.getTime()));
-							interfacedata.setCategory("Interface");
-							interfacedata.setEntity(desc[j]);
-							interfacedata.setSubentity(sIndex);
-							// �˿�״̬�����棬ֻ��Ϊ��̬���ݷŵ���ʱ����
-							interfacedata.setRestype("static");
-							interfacedata.setUnit(unit[j]);
 
-							// ����
-							if ((j == 4) && sValue != null) {
-								// ����
-								long lValue = Long.parseLong(sValue);// yangjun
-								hashSpeed.put(sIndex, Long.toString(lValue));
-								allSpeed = allSpeed + lValue;
-							}
 							// HC����
-							if ((j == 5) && sValue != null) {
+							if ((j == 4) && sValue != null) {
 								// HC����
 								long lValue = Long.parseLong(sValue);
 								hashHighSpeed
 										.put(sIndex, Long.toString(lValue));
 								allHighSpeed = allHighSpeed + lValue;
-							}
-							// �˿�����
-							if ((j == 2) && sValue != null) {
-								if (Interface_IfType.get(sValue) != null) {
-									interfacedata.setThevalue(Interface_IfType
-											.get(sValue).toString());
-								} else {
-									interfacedata.setThevalue("0.0");
-								}
-							} else {
-								if (scale[j] == 0) {
-									interfacedata.setThevalue(sValue);
-								} else {
-									if (sValue != null) {
-										interfacedata.setThevalue(Long
-												.toString(Long
-														.parseLong(sValue)
-														/ scale[j]));
-									} else {
-										interfacedata.setThevalue("0");
-									}
-								}
-							}
-							interfacedata.setChname(chname[j]);
-							if ("ifPhysAddress".equals(interfacedata
-									.getEntity())) {
-								if ((interfacedata.getThevalue() == null)
-										|| (interfacedata.getThevalue()
-												.length() > 0 && !interfacedata
-												.getThevalue().contains(":"))) {// mac��ַ�ַ������ܳ���
-									interfacedata.setThevalue("--");
-								}
-							}
-							interfacedata.setCount(count);
-							interfaceVector.addElement(interfacedata);
-						}
-					}
-				}
-
-				if (valueArray2 != null) {
-
-					for (int i = 0; i < valueArray2.length; i++) {
-						String sIndex = (String) tempHash.get(i);
-						if (tempV.contains(sIndex)) {
-							if (valueArray2[i][0] == null)
-								continue;
-
-							for (int j = 0; j < 5; j++) {
-								// ��Ԥ��״̬��ifLastChange���˵�
-								if (j == 3)
-									continue;
-
-								String sValue = valueArray2[i][j];
-
-								interfacedata = new Interfacecollectdata();
-								interfacedata.setIpaddress(host.getIpAddress());
-								interfacedata.setCollecttime(sdf.format(date
-										.getTime()));
-								interfacedata.setCategory("Interface");
-								interfacedata.setEntity(desc[5 + j]);
-								interfacedata.setSubentity(sIndex);
-								// �˿�״̬�����棬ֻ��Ϊ��̬���ݷŵ���ʱ����
-								interfacedata.setRestype("static");
-								interfacedata.setUnit(unit[5 + j]);
-								if ((j == 1 || j == 2) && sValue != null) {// Ԥ��״̬�͵�ǰ״̬
-									if (ifEntity_ifStatus.get(sValue) != null) {
-										interfacedata
-												.setThevalue(ifEntity_ifStatus
-														.get(sValue).toString());
-									} else {
-										interfacedata.setThevalue("0.0");
-									}
-								} else {
-									if (scale[5 + j] == 0) {
-										interfacedata.setThevalue(sValue);
-									} else {
-										if (sValue != null) {
-											interfacedata.setThevalue(Long
-													.toString(Long
-															.parseLong(sValue)
-															/ scale[5 + j]));
-										} else {
-											interfacedata.setThevalue("0");
-										}
-									}
-								}
-
-								interfacedata.setChname(chname[5 + j]);
-								if ("ifPhysAddress".equals(interfacedata
-										.getEntity())) {
-									if ((interfacedata.getThevalue() == null)
-											|| (interfacedata.getThevalue()
-													.length() > 0 && !interfacedata
-													.getThevalue()
-													.contains(":"))) {// mac��ַ�ַ������ܳ���
-										interfacedata.setThevalue("--");
-									}
-								}
-								interfaceVector.addElement(interfacedata);
 							}
 						}
 					}
@@ -378,7 +234,6 @@ public class InterfaceTask extends MonitorTask {
 						innupacks = 0;// ��ڶಥ
 						indiscards = 0;
 						inerrors = 0;
-						InterfaceNode ifNode = new InterfaceNode();
 
 						String sIndex = (String) tempHash.get(i);
 
@@ -427,7 +282,6 @@ public class InterfaceTask extends MonitorTask {
 													0);
 											BigDecimal l = new BigDecimal(0);
 
-											// �����ǰ�ɼ�ʱ�����ϴβɼ�ʱ��Ĳ�С�ڲɼ�����������������������ʣ��������������Ϊ0��
 											if (longinterval < 2 * interval) {
 												String lastvalue = "";
 
@@ -443,7 +297,9 @@ public class InterfaceTask extends MonitorTask {
 												// ȡ���ϴλ�õ�Octets
 												if (lastvalue != null
 														&& !lastvalue
-																.equals("")) {
+																.equals("")
+														&& !lastvalue
+																.equals("0")) {
 													lastPacks = new BigDecimal(
 															lastvalue);
 												} else {
@@ -466,7 +322,6 @@ public class InterfaceTask extends MonitorTask {
 														.toString());
 											}
 
-											// SysLogger.info(host.getIpAddress()+" ��"+utilhdx.getSubentity()+"�˿� "+"inpacks "+Long.toString(l));
 											if (cal != null)
 												inpacksVector
 														.addElement(inpacks);
@@ -529,7 +384,8 @@ public class InterfaceTask extends MonitorTask {
 													.toString();
 										// ȡ���ϴλ�õ�HighOctets
 										if (lastvalue != null
-												&& !lastvalue.equals(""))
+												&& !lastvalue.equals("")
+												&& !lastvalue.equals("0"))
 											lastHighOctets = new BigDecimal(
 													lastvalue);
 										if (longinterval != 0) {
@@ -557,8 +413,7 @@ public class InterfaceTask extends MonitorTask {
 																+ ":"
 																+ host.getIpAddress()
 																+ ":" + sIndex);
-												utilfalg = String
-														.valueOf(beforeOctets);
+//												utilfalg = String.valueOf(beforeOctets);
 												// ��ǰ��������Ϊ0
 												if (beforeOctets != 0) {
 													// ����10��Ϊ�쳣����
@@ -693,7 +548,8 @@ public class InterfaceTask extends MonitorTask {
 							}
 
 							// ȡ���ϴλ�õ�packs
-							if (lastvalue != null && !lastvalue.equals("")) {
+							if (lastvalue != null && !lastvalue.equals("")
+									&& !lastvalue.equals("0")) {
 								lastpacks = Long.parseLong(lastvalue);
 							}
 
@@ -756,7 +612,7 @@ public class InterfaceTask extends MonitorTask {
 
 							}
 							portIPS.setErrorsPerc(Double.toString(inerrorsperc));
-							if (!utilfalg.equals(""))
+//							if (!utilfalg.equals(""))
 								utilhdxVector.addElement(portIPS);
 							lastvalue = "";
 							lastpacks = 0;
@@ -866,6 +722,7 @@ public class InterfaceTask extends MonitorTask {
 													0);
 											BigDecimal l = new BigDecimal(0);
 
+											// �����ǰ�ɼ�ʱ�����ϴβɼ�ʱ��Ĳ�С�ڲɼ�����������������������ʣ��������������Ϊ0��
 											if (longinterval < 2 * interval) {
 												String lastvalue = "";
 												if (hash.get(desc1[j] + ":"
@@ -880,7 +737,9 @@ public class InterfaceTask extends MonitorTask {
 												// ȡ���ϴλ�õ�Octets
 												if (lastvalue != null
 														&& !lastvalue
-																.equals("")) {
+																.equals("")
+														&& !lastvalue
+																.equals("0")) {
 													lastPacks = new BigDecimal(
 															lastvalue);
 												} else {
@@ -970,7 +829,8 @@ public class InterfaceTask extends MonitorTask {
 													.toString();
 										// ȡ���ϴλ�õ�Octets
 										if (lastvalue != null
-												&& !lastvalue.equals(""))
+												&& !lastvalue.equals("")
+												&& !lastvalue.equals("0"))
 											lastHighOctets = new BigDecimal(
 													lastvalue);
 										if (longinterval != 0) {
@@ -999,8 +859,8 @@ public class InterfaceTask extends MonitorTask {
 																+ ":"
 																+ host.getIpAddress()
 																+ ":" + sIndex);
-												utilfalg = String
-														.valueOf(beforeOctets);
+//												utilfalg = String
+//														.valueOf(beforeOctets);
 												// �ϴ���������Ϊ0
 												if (beforeOctets != 0) {
 													// ����10��Ϊ�쳣����
@@ -1147,7 +1007,8 @@ public class InterfaceTask extends MonitorTask {
 											.toString();
 							}
 							// ȡ���ϴλ�õ�packs
-							if (lastvalue != null && !lastvalue.equals("")) {
+							if (lastvalue != null && !lastvalue.equals("")
+									&& !lastvalue.equals("0")) {
 								lastpacks = Long.parseLong(lastvalue);
 							}
 							// ���㶪���ʺʹ�����
@@ -1203,7 +1064,7 @@ public class InterfaceTask extends MonitorTask {
 							portIPS.setErrorsPerc(Double
 									.toString(outerrorsperc));
 
-							if (!utilfalg.equals(""))
+//							if (!utilfalg.equals(""))
 								utilhdxVector.addElement(portIPS);
 
 							/* ��ӵ��ڴ��� */
@@ -1248,13 +1109,12 @@ public class InterfaceTask extends MonitorTask {
 								ShareData.setErrorsdata(host.getIpAddress()
 										+ ":" + sIndex, errHash);
 							}
-						} // end for contains
-
+						}
 					}
 				}
 
 				String flag = "0";
-				hashSpeed = null;
+				hashHighSpeed = null;
 				octetsHash.put("collecttime", date);
 
 				if (hash != null) {
@@ -1276,8 +1136,6 @@ public class InterfaceTask extends MonitorTask {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			// -------------------------------------------------------------------------------------------interface
-			// end
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -1287,30 +1145,20 @@ public class InterfaceTask extends MonitorTask {
 			Hashtable ipAllData = new Hashtable();
 			if (ipAllData == null)
 				ipAllData = new Hashtable();
-			if (interfaceVector != null && interfaceVector.size() > 0)
-				ipAllData.put("interface", interfaceVector);
 			if (utilhdxVector != null && utilhdxVector.size() > 0)
 				ipAllData.put("utilhdx", utilhdxVector);
 			ShareData.getSharedata().put(host.getIpAddress(), ipAllData);
 		} else {
-			if (interfaceVector != null && interfaceVector.size() > 0)
-				((Hashtable) ShareData.getSharedata().get(host.getIpAddress()))
-						.put("interface", interfaceVector);
 			if (utilhdxVector != null && utilhdxVector.size() > 0)
 				((Hashtable) ShareData.getSharedata().get(host.getIpAddress()))
 						.put("utilhdx", utilhdxVector);
 		}
 		returnHash.put("utilhdx", utilhdxVector); // �ĳ� �˿�����
-
 		outpacksVector = null;
 		inpacksVector = null;
-		packsVector = null;
-		errorspercVector = null;
-		discardspercVector = null;
 		utilhdxVector = null;
-		utilhdxpercVector = null;
-		interfaceVector = null;
 		NetinterfaceResultTosql tosql = new NetinterfaceResultTosql();
+		logger.info("To SQL start");
 		tosql.CreateResultTosql(returnHash, host.getIpAddress());
 		return returnHash;
 	}
@@ -1328,29 +1176,20 @@ public class InterfaceTask extends MonitorTask {
 		return interval;
 	}
 
-	@Override
-	public void run() {
+	/**
+	 * ��ȡ����ʱ��
+	 * 
+	 * @return
+	 */
+	private Calendar getOperateTime() {
+		Calendar opertatedate = null;
+		SimpleDateFormat dateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+
 		try {
-			int numThreads = 200;
-
-			int threadInterval = 5;
-			long interval = 0;
-			long currentTime = 0;
-			long operateTime = 0;
-			boolean flag;
-			int offset = 0;
-			long initTime = 0;
-			ThreadPool threadPool = null;
-
-			initTime = System.currentTimeMillis() / 1000;
+			long initTime = System.currentTimeMillis() / 1000;
 			if (initTime % (60 * 5) == 0) {
-				threadPool = new ThreadPool(numThreads);
-				Calendar date = Calendar.getInstance();
-				// date.setTime(new Date(initTime));
-				threadPool.runTask(createTask(node, date));
-				threadPool.join();
-				threadPool.close();
-				threadPool = null;
+				opertatedate = Calendar.getInstance();
 			} else {
 				String curDate = DateUtil.getRightNow();
 				String curDayAndHour = curDate.substring(0, 14);
@@ -1371,44 +1210,36 @@ public class InterfaceTask extends MonitorTask {
 							curDayAndHour = curDate.substring(0, 11)
 									+ String.valueOf(ho + 1) + ":00:00";
 						}
-
 					}
 				} else {
 					inMin = String.valueOf(((cu + 1) * 5));
 					curDayAndHour = curDayAndHour + inMin + ":00";
 				}
-				try {
-					initTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-							.parse(curDayAndHour).getTime() / 1000;
-				} catch (ParseException e1) {
-					e1.printStackTrace();
-				}
-				while (true) {
-					operateTime = initTime + interval;
-					currentTime = System.currentTimeMillis() / 1000;
-					flag = true;
-					while (flag) {
-						if (currentTime == operateTime) {
-							threadPool = new ThreadPool(numThreads);
-							Calendar date = Calendar.getInstance();
-							// date.setTime(new Date(currentTime));
-							threadPool.runTask(createTask(node, date));
-							threadPool.join();
-							threadPool.close();
-							threadPool = null;
-							flag = false;
-						} else {
-							currentTime = System.currentTimeMillis() / 1000;
-						}
-					}
-					interval += threadInterval * 60;
-					currentTime = System.currentTimeMillis() / 1000;
-				}
+				Date date = dateFormat.parse(curDayAndHour);
+				opertatedate = Calendar.getInstance();
+				opertatedate.setTime(date);
 			}
+		} catch (Exception de) {
+			de.printStackTrace();
+		}
+
+		return opertatedate;
+
+	}
+
+	public void run() {
+		try {
+			int numThreads = 200;
+
+			// �����̳߳�
+			ThreadPool threadPool = new ThreadPool(numThreads);
+			// ��������
+			Calendar date = getOperateTime();
+			threadPool.runTask(createTask(node, date));
+			// �ر��̳߳ز��ȴ������������
+			threadPool.join();
 		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			// SysLogger.info("********Ping Thread Count : "+Thread.activeCount());
+			SysLogger.info("error in ExecutePing!" + e.getMessage());
 		}
 
 	}
@@ -1421,8 +1252,7 @@ public class InterfaceTask extends MonitorTask {
 		return new Runnable() {
 			public void run() {
 				try {
-
-					new InterfaceTask().collect_Data(hostnode, date);
+					new InterfaceTaskHC().collect_Data(hostnode, date);
 				} catch (Exception exc) {
 					exc.printStackTrace();
 				}
@@ -1433,40 +1263,7 @@ public class InterfaceTask extends MonitorTask {
 	private static String dateIPS;
 
 	public static void main(String[] args) throws Exception {
-		InterfaceTask init = new InterfaceTask();
+		InterfaceTaskHC init = new InterfaceTaskHC();
 		init.run();
-		// String curDate=DateUtil.getRightNow();
-		// String curDate="2016-11-28 00:05:34";
-		// String curDayAndHour=curDate.substring(0,14);
-		// String curMin = curDate.substring(14,16);
-		// String curHour = curDate.substring(11,13);
-		// int cu=Integer.valueOf(curMin)/5;
-		// int ho = Integer.valueOf(curHour);
-		// String inMin = "";
-		// if(cu==11){
-		// if(ho==23){
-		// curDayAndHour=DateUtil.getDateAddByDate(curDate,
-		// 1).substring(0,11)+"00:00:00";
-		// }else{
-		// if(ho<9){
-		// curDayAndHour=curDate.substring(0,11)+"0"+String.valueOf(ho+1)+":00:00";
-		// }else{
-		// curDayAndHour=curDate.substring(0,11)+String.valueOf(ho+1)+":00:00";
-		// }
-		//
-		// }
-		// }else{
-		// inMin=String.valueOf(((cu+1)*5));
-		// curDayAndHour=curDayAndHour+inMin+":00";
-		// }
-		// try {
-		// Long initTime=new
-		// SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(curDayAndHour).getTime()/1000;
-		// } catch (ParseException e1) {
-		// e1.printStackTrace();
-		// }
-		// System.out.println(curDayAndHour);
-		// System.out.println(initTime1);
-
 	}
 }

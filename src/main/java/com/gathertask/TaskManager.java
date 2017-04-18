@@ -10,7 +10,7 @@ import java.util.Timer;
 import org.apache.log4j.Logger;
 
 import com.afunms.common.util.ShareData;
-import com.afunms.polling.task.InterfaceTask;
+import com.afunms.polling.task.InterfaceTaskHC;
 import com.afunms.topology.dao.HostInterfaceDao;
 import com.afunms.topology.dao.HostNodeDao;
 import com.afunms.topology.model.HostNode;
@@ -77,7 +77,7 @@ public class TaskManager {
 				timer = new Timer();
 				
 				// interface任务
-				InterfaceTask interfaceTask = new InterfaceTask();
+				InterfaceTaskHC interfaceTask = new InterfaceTaskHC();
 				interfaceTask.setNode(hostnode);
 				
 				long in = 0;
@@ -86,7 +86,7 @@ public class TaskManager {
 				} else {
 					in = nmsmemorydate.TaskList.size() * 200;
 				}
-				timer.schedule(interfaceTask, 10000L, 5 * 60 * 1000);// ping
+				timer.schedule(interfaceTask, 10000L, 1 * 60 * 1000);
 				
 				// 执行任务按分钟执行定时任务
 				nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// 把TIMER对象到任务队里

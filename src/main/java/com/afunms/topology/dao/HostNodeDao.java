@@ -202,29 +202,6 @@ public class HostNodeDao extends BaseDao implements DaoInterface
 	}
 	
 	
-	public static void main(String[] args){
-//		DBManager db = new DBManager();
-//		try {
-//			
-//			for(int i=11;i<114;i++)
-//			{
-//				String community="sxyd-idc";
-//				String sql="insert into topo_host_node (id,ip_address,sys_name,community,managed)"+
-//				"values("+i+",'183.203.0."+i+
-//			"','183.203.0."+i+
-//			"','"+community+
-//			"','0')";
-//				db.executeUpdate(sql);
-//			}
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		HostNodeDao dao = new HostNodeDao();
-		int count=dao.getTableCount("PORTSTATUS183_203_0_113");
-		System.out.println(count);
-	}
-	
 	public int getTableCount(String str){
 		int count=0;
 		count=getNextID(str);
