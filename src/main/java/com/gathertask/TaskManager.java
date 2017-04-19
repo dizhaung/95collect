@@ -38,7 +38,7 @@ public class TaskManager {
 			nmsmemorydate.GathersqlTaskStatus = true;// 璁剧疆鏍囪涓哄惎鍔�
 			nmsmemorydate.GathersqlTasktimer = timer;
 		}
-   }
+	}
 	
 	/**
 	 * 鏍规嵁鏁版嵁搴撹〃鐨勮褰曞缓绔嬮噰闆嗕换鍔�

@@ -230,26 +230,14 @@ public class InterfaceTaskHC extends MonitorTask {
 						String sIndex = valueArray[i][0].toString();
 						tempV.add(sIndex);
 						tempHash.put(i, sIndex);
-//						for (int h = 0; h < hiList.size(); h++) {
-//							InterfaceNode ifnode = new InterfaceNode();
-//							ifnode = (InterfaceNode) hiList.get(h);
-//							hiindex = ifnode.getIfIndex();
-//							if (hiindex.equals(sIndex)) {
-//								tempV.add(sIndex);
-//								tempHash.put(i, sIndex);
-//							}
-//						}
 
 						for (int j = 0; j < 5; j++) {
 
 							String sValue = valueArray[i][j];
 
-							// HC����
 							if ((j == 4) && sValue != null) {
-								// HC����
 								long lValue = Long.parseLong(sValue);
-								hashHighSpeed
-										.put(sIndex, Long.toString(lValue));
+								hashHighSpeed.put(sIndex, Long.toString(lValue));
 								allHighSpeed = allHighSpeed + lValue;
 							}
 						}
@@ -278,7 +266,6 @@ public class InterfaceTaskHC extends MonitorTask {
 									interfacedata = new Interfacecollectdata();
 									interfacedata.setThevalue(sValue);
 									if (j == 1 || j == 2) {
-										// ��ڹ㲥���ݰ�,��ڶಥ���ݰ�
 										if (sValue != null) {
 											allinpacks = allinpacks
 													+ Long.parseLong(sValue);
@@ -300,11 +287,11 @@ public class InterfaceTaskHC extends MonitorTask {
 											String chnameBand = "";
 											if (j == 1) {
 												inpacks.setEntity("ifHCInMulticastPkts");
-												chnameBand = "�ಥ";
+												chnameBand = "入口多播";
 											}
 											if (j == 2) {
 												inpacks.setEntity("ifHCInBroadcastPkts");
-												chnameBand = "�㲥";
+												chnameBand = "入口广播";
 											}
 											inpacks.setSubentity(sIndex);
 											inpacks.setRestype("dynamic");
@@ -328,7 +315,6 @@ public class InterfaceTaskHC extends MonitorTask {
 												} else {
 													lastvalue = "0";
 												}
-												// ȡ���ϴλ�õ�Octets
 												if (lastvalue != null
 														&& !lastvalue
 																.equals("")
@@ -363,7 +349,6 @@ public class InterfaceTaskHC extends MonitorTask {
 										// continue;
 									}
 									if (j == 3) {
-										// ��ڶ��������ݰ�
 										if (sValue != null) {
 											indiscards = Long.parseLong(sValue);
 										} else {
@@ -372,7 +357,6 @@ public class InterfaceTaskHC extends MonitorTask {
 										continue;
 									}
 									if (j == 4) {
-										// ��ڴ�������ݰ�
 										if (sValue != null) {
 											inerrors = Long.parseLong(sValue);
 										} else {
@@ -381,7 +365,6 @@ public class InterfaceTaskHC extends MonitorTask {
 										continue;
 									}
 
-									// ����ÿ���˿����ټ�������
 									if (j == 0) {
 										cal = (Calendar) hash
 												.get("collecttime");
@@ -398,7 +381,7 @@ public class InterfaceTaskHC extends MonitorTask {
 												.getTime()));
 										portIPS.setCategory("Interface");
 										if (j == 0) {
-											portIPS.setEntity("���");
+											portIPS.setEntity("入口");
 										}
 										portIPS.setRestype("dynamic");
 										portIPS.setSubentity(sIndex);
@@ -447,12 +430,8 @@ public class InterfaceTaskHC extends MonitorTask {
 																+ ":"
 																+ host.getIpAddress()
 																+ ":" + sIndex);
-//												utilfalg = String.valueOf(beforeOctets);
-												// ��ǰ��������Ϊ0
 												if (beforeOctets != 0) {
-													// ����10��Ϊ�쳣����
 													if (10 * beforeOctets <= octets) {
-														// �������ʶΪ�쳣����
 														portIPS.setUtilhdxflag("1");
 													} else {
 														ShareData
@@ -487,7 +466,6 @@ public class InterfaceTaskHC extends MonitorTask {
 																		+ sIndex,
 																octets);
 											}
-											// ����˿�����
 											l = octets / longinterval;
 
 											// yangjun
@@ -515,8 +493,6 @@ public class InterfaceTaskHC extends MonitorTask {
 										double d = 0.0;
 										portIPS.setIfSpeed(highSpeed);
 										if (highSpeed > 0) {
-
-											// ���������ʣ����١�8*100/ifspeed%
 											d = Arith.div(8 * l * 100,
 													highSpeed);
 										}
@@ -542,9 +518,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllInCastPkts");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("MB");
 							interfacedata.setThevalue(allinpacks + "");
-							interfacedata.setChname("��������ݰ�");
+							interfacedata.setChname("总入口");
 
 							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
@@ -554,9 +530,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllInDiscards");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("%");
 							interfacedata.setThevalue(indiscards + "");
-							interfacedata.setChname("����ܶ�����");
+							interfacedata.setChname("总入口丢包率");
 
 							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
@@ -566,9 +542,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllInErrors");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("%");
 							interfacedata.setThevalue(inerrors + "");
-							interfacedata.setChname("��ڴ������");
+							interfacedata.setChname("总入口错误率");
 
 							String lastvalue = "";
 							long lastpacks = 0;
@@ -628,7 +604,6 @@ public class InterfaceTaskHC extends MonitorTask {
 											"AllInErrors" + ":" + sIndex)
 											.toString();
 							}
-							// ȡ���ϴλ�õ�error
 							if (lastvalue != null && !lastvalue.equals("")) {
 								lasterrors = Long.parseLong(lastvalue);
 							}
@@ -740,11 +715,11 @@ public class InterfaceTaskHC extends MonitorTask {
 											String chnameBand = "";
 											if (j == 1) {
 												outpacks.setEntity("ifHCOutMulticastPkts");
-												chnameBand = "�ಥ";
+												chnameBand = "出口多播";
 											}
 											if (j == 2) {
 												outpacks.setEntity("ifHCOutBroadcastPkts");
-												chnameBand = "�㲥";
+												chnameBand = "出口广播";
 											}
 											outpacks.setSubentity(sIndex);
 											outpacks.setRestype("dynamic");
@@ -756,7 +731,6 @@ public class InterfaceTaskHC extends MonitorTask {
 													0);
 											BigDecimal l = new BigDecimal(0);
 
-											// �����ǰ�ɼ�ʱ�����ϴβɼ�ʱ��Ĳ�С�ڲɼ�����������������������ʣ��������������Ϊ0��
 											if (longinterval < 2 * interval) {
 												String lastvalue = "";
 												if (hash.get(desc1[j] + ":"
@@ -841,7 +815,7 @@ public class InterfaceTaskHC extends MonitorTask {
 												.getTime()));
 										portIPS.setCategory("Interface");
 										if (j == 0) {
-											portIPS.setEntity("����");
+											portIPS.setEntity("出口");
 										}
 										portIPS.setSubentity(sIndex);
 										portIPS.setRestype("dynamic");
@@ -988,9 +962,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllOutCastPkts");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("MB");
 							interfacedata.setThevalue(alloutpacks + "");
-							interfacedata.setChname("���������ݰ�");
+							interfacedata.setChname("总出口");
 
 							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
@@ -1000,9 +974,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllOutDiscards");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("%");
 							interfacedata.setThevalue(outdiscards + "");
-							interfacedata.setChname("�����ܶ�����");
+							interfacedata.setChname("总出口丢包率");
 
 							interfacedata = new Interfacecollectdata();
 							interfacedata.setIpaddress(host.getIpAddress());
@@ -1012,9 +986,9 @@ public class InterfaceTaskHC extends MonitorTask {
 							interfacedata.setEntity("AllOutErrors");
 							interfacedata.setSubentity(sIndex);
 							interfacedata.setRestype("static");
-							interfacedata.setUnit("��");
+							interfacedata.setUnit("%");
 							interfacedata.setThevalue(outerrors + "");
-							interfacedata.setChname("���ڴ������");
+							interfacedata.setChname("总出口错误率");
 
 							String lastvalue = "";
 							long lastpacks = 0;
