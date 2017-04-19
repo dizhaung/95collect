@@ -13,7 +13,7 @@ public class PhoenixTest {
 	public void testPhoenixConnection(){
 		try {
 			Class.forName("org.apache.phoenix.jdbc.PhoenixDriver");
-			Connection conn = DriverManager.getConnection("jdbc:phoenix:111.205.6.228:2181:/hbase");
+			Connection conn = DriverManager.getConnection("jdbc:phoenix:111.205.6.229:2181:/hbase");
 			Statement statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery("select * from stock_symbol");
 			while(rs.next()){

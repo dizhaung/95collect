@@ -13,10 +13,10 @@ import com.gatherdb.GathersqlRun;
 
 public class InterfaceTaskTest {
 
-	private InterfaceTaskHC task;
+	private InterfaceTask task;
 	@Before
 	public void setUp() throws Exception {
-		task = new InterfaceTaskHC();
+		task = new InterfaceTask();
 	}
 
 	@After
@@ -33,8 +33,9 @@ public class InterfaceTaskTest {
 		HostNode host = new HostNode();
 		host.setIpAddress("127.0.0.1");
 		host.setCommunity("public");
-		host.setSnmpversion(2);
-		task.collect_Data(host,  Calendar.getInstance());
+		host.setSnmpversion(1);
+		task.setHost(host);
+		task.collect_Data();
 		GathersqlRun run = new GathersqlRun();
 		run.run();
 	}

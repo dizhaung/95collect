@@ -81,9 +81,7 @@ public class InterfaceTaskHC extends MonitorTask {
 	public InterfaceTaskHC() {
 	}
 
-	public void collectData(HostNode node) {
 
-	}
 
 	private Log logger = LogFactory.getLog(InterfaceTaskHC.class);
 
@@ -109,7 +107,7 @@ public class InterfaceTaskHC extends MonitorTask {
 				Hashtable octetsHash = new Hashtable();
 				if (hash == null)
 					hash = new Hashtable();
-				String[] oids = new String[] { "1.3.6.1.2.1.2.2.1.1",
+				/*String[] oids = new String[] { "1.3.6.1.2.1.2.2.1.1",
 						"1.3.6.1.2.1.2.2.1.2", "1.3.6.1.2.1.2.2.1.3",
 						"1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.31.1.1.1.15" };// ifHighSpeed
 
@@ -126,6 +124,42 @@ public class InterfaceTaskHC extends MonitorTask {
 						"1.3.6.1.2.1.2.2.1.19", // ifOutDiscards 8
 						"1.3.6.1.2.1.2.2.1.20"// ifOutErrors 9
 
+				};*/
+				String[] oids =                
+						  new String[] {               
+							"1.3.6.1.2.1.2.2.1.1", 
+							"1.3.6.1.2.1.2.2.1.2",
+							"1.3.6.1.2.1.2.2.1.3",
+							"1.3.6.1.2.1.2.2.1.4",
+							"1.3.6.1.2.1.2.2.1.5"				
+							  };
+					  String[] oids2 =                
+						  new String[] {          
+							"1.3.6.1.2.1.2.2.1.6",
+							"1.3.6.1.2.1.2.2.1.7",//ifAdminStatus 6
+							"1.3.6.1.2.1.2.2.1.8",//ifOperStatus 7
+							"1.3.6.1.2.1.2.2.1.9",//ifLastChange 8
+							"1.3.6.1.2.1.31.1.1.1.1"				
+							  };						  
+					  
+					  
+					  
+			String[] oids1=                
+				 new String[] {     	
+				"1.3.6.1.2.1.2.2.1.10",  //ifInOctets 0        
+				"1.3.6.1.2.1.31.1.1.1.2",//ifInMulticastPkts 1
+				"1.3.6.1.2.1.31.1.1.1.3",//ifInBroadcastPkts 2
+				"1.3.6.1.2.1.2.2.1.13",//ifInDiscards 3
+				"1.3.6.1.2.1.2.2.1.14"//ifInErrors 4								
+				};	
+			
+			String[] oids3=                
+				 new String[] {     	
+				"1.3.6.1.2.1.2.2.1.16", //ifOutOctets 5
+				"1.3.6.1.2.1.31.1.1.1.4",//ifOutMulticastPkts 6
+				"1.3.6.1.2.1.31.1.1.1.5",//ifOutBroadcastPkts 7
+				"1.3.6.1.2.1.2.2.1.19",	//ifOutDiscards 8
+				"1.3.6.1.2.1.2.2.1.20"//ifOutErrors 9								
 				};
 
 				final String[] desc = SnmpMibConstants.NetWorkMibInterfaceDesc0;

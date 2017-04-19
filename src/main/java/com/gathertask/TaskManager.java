@@ -10,6 +10,7 @@ import java.util.Timer;
 import org.apache.log4j.Logger;
 
 import com.afunms.common.util.ShareData;
+import com.afunms.polling.task.InterfaceTask;
 import com.afunms.polling.task.InterfaceTaskHC;
 import com.afunms.topology.dao.HostInterfaceDao;
 import com.afunms.topology.dao.HostNodeDao;
@@ -23,8 +24,8 @@ public class TaskManager {
 	
 	private Logger logger = Logger.getLogger(TaskManager.class);
 	/**
-	 * 建立一个维护进程
-	 * 5分钟定时检查一次timer是否需要运行，或是定时时间已经改变
+	 * 寤虹珛涓�釜缁存姢杩涚▼
+	 * 5鍒嗛挓瀹氭椂妫�煡涓�timer鏄惁闇�杩愯锛屾垨鏄畾鏃舵椂闂村凡缁忔敼鍙�
 	 */
 	public void CreateGahterSQLTask()
 	{
@@ -33,23 +34,23 @@ public class TaskManager {
 			GathersqlRun btask = null;
 			timer = new Timer();
 			btask = new GathersqlRun();
-			timer.schedule(btask, 0, 20 * 1000);// 5秒钟入库一次
-			nmsmemorydate.GathersqlTaskStatus = true;// 设置标记为启动
+			timer.schedule(btask, 0, 20 * 1000);// 5绉掗挓鍏ュ簱涓�
+			nmsmemorydate.GathersqlTaskStatus = true;// 璁剧疆鏍囪涓哄惎鍔�
 			nmsmemorydate.GathersqlTasktimer = timer;
 		}
    }
 	
 	/**
-	 * 根据数据库表的记录建立采集任务
+	 * 鏍规嵁鏁版嵁搴撹〃鐨勮褰曞缓绔嬮噰闆嗕换鍔�
 	 * 
 	 */
     public void createAllTask()
     {
 		Timer timer = null;
-		// 先加载资源列表
+		// 鍏堝姞杞借祫婧愬垪琛�
 
 		HostNodeDao nodeDao = new HostNodeDao();
-		// 得到被监视的设备
+		// 寰楀埌琚洃瑙嗙殑璁惧
 		List nodeList = new ArrayList();
 	
 		nodeList = nodeDao.loadIsMonitoredNode();
@@ -63,23 +64,22 @@ public class TaskManager {
 		Iterator<HostNode> nodeIterator = runtask.values().iterator();
 		while (nodeIterator.hasNext()) {
 			HostNode hostnode =  nodeIterator.next();
-			// 根据Hashtable 中的参数来判断来判断启动采集的任务
+			// 鏍规嵁Hashtable 涓殑鍙傛暟鏉ュ垽鏂潵鍒ゆ柇鍚姩閲囬泦鐨勪换鍔�
 			if (null != nmsmemorydate.TaskList
 					&& nmsmemorydate.TaskList.size() > 0
 					&& nmsmemorydate.TaskList.containsKey(hostnode.getId())) {
-				// 停止原来的timer，列表并且从内存中删除对应的对象
+				// 鍋滄鍘熸潵鐨則imer锛屽垪琛ㄥ苟涓斾粠鍐呭瓨涓垹闄ゅ搴旂殑瀵硅薄
 				timer = (Timer) nmsmemorydate.TaskList
 						.get(hostnode.getId());
 				timer.cancel();
 				nmsmemorydate.TaskList.remove(hostnode.getId());
 			} else if (!(ShareData.getResourceConfHashtable()).containsKey(hostnode.getId() + "")) {
-				// 建立定时采集任务
+				// 寤虹珛瀹氭椂閲囬泦浠诲姟
 				timer = new Timer();
 				
-				// interface任务
+				// interface浠诲姟
 				InterfaceTaskHC interfaceTask = new InterfaceTaskHC();
 				interfaceTask.setNode(hostnode);
-				
 				long in = 0;
 				if (nmsmemorydate.TaskList.size() > 300) {
 					in = (nmsmemorydate.TaskList.size() / 5) * 200;
@@ -88,8 +88,8 @@ public class TaskManager {
 				}
 				timer.schedule(interfaceTask, 10000L, 1 * 60 * 1000);
 				
-				// 执行任务按分钟执行定时任务
-				nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// 把TIMER对象到任务队里
+				// 鎵ц浠诲姟鎸夊垎閽熸墽琛屽畾鏃朵换鍔�
+				nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// 鎶奣IMER瀵硅薄鍒颁换鍔￠槦閲�
 			}
 		}
 	
@@ -97,15 +97,15 @@ public class TaskManager {
     
     /**
 	 * 
-	 * 根据id把采集任务停止
+	 * 鏍规嵁id鎶婇噰闆嗕换鍔″仠姝�
 	 * 
 	 * @param id
 	 */
     public synchronized void cancelTask(String id)
     {
-    	System.out.println("====停止任务=="+id);
+    	System.out.println("====鍋滄浠诲姟=="+id);
     	if(null!=nmsmemorydate.TaskList.get(id) ){
-    		((Timer) nmsmemorydate.TaskList.get(id+"")).cancel();//注销该任务
+    		((Timer) nmsmemorydate.TaskList.get(id+"")).cancel();//娉ㄩ攢璇ヤ换鍔�
     		nmsmemorydate.TaskList.remove(id+"");
     	}
     }
@@ -113,10 +113,10 @@ public class TaskManager {
     
     public void checkInterfaceTask(){
     	Timer timer = null;
-		// 先加载资源列表
+		// 鍏堝姞杞借祫婧愬垪琛�
 
 		HostInterfaceDao nodeDao = new HostInterfaceDao();
-		// 得到被监视的设备
+		// 寰楀埌琚洃瑙嗙殑璁惧
 		List nodeList = new ArrayList();
 		try {
 			nodeList = nodeDao.loadAll();
@@ -130,23 +130,23 @@ public class TaskManager {
 			HostNode node = (HostNode) nodeList.get(i);
 			runtask.put(node.getId(), node);
 		}
-		logger.info("=采集任务个数==" + runtask.size());
+		logger.info("=閲囬泦浠诲姟涓暟==" + runtask.size());
 		if (null != runtask) {
-			// 如果不为空则循环
+			// 濡傛灉涓嶄负绌哄垯寰幆
 			Enumeration allvalue = runtask.elements();
 			while (allvalue.hasMoreElements()) {
 				HostNode hostnode = (HostNode) allvalue.nextElement();
-				// 根据Hashtable 中的参数来判断来判断启动采集的任务
+				// 鏍规嵁Hashtable 涓殑鍙傛暟鏉ュ垽鏂潵鍒ゆ柇鍚姩閲囬泦鐨勪换鍔�
 				if (null != nmsmemorydate.TaskList
 						&& nmsmemorydate.TaskList.size() > 0
 						&& nmsmemorydate.TaskList.containsKey(hostnode.getId())) {
-					// 停止原来的timer，列表并且从内存中删除对应的对象
+					// 鍋滄鍘熸潵鐨則imer锛屽垪琛ㄥ苟涓斾粠鍐呭瓨涓垹闄ゅ搴旂殑瀵硅薄
 					timer = (Timer) nmsmemorydate.TaskList
 							.get(hostnode.getId());
 					timer.cancel();
 					nmsmemorydate.TaskList.remove(hostnode.getId());
 				} else if (!(ShareData.getResourceConfHashtable()).containsKey(hostnode.getId() + "")) {
-					// 建立定时采集任务
+					// 寤虹珛瀹氭椂閲囬泦浠诲姟
 					timer = new Timer();
 	
 					//portinfoTask.
@@ -156,7 +156,7 @@ public class TaskManager {
 					} else {
 						in = nmsmemorydate.TaskList.size() * 200;
 					}
-					nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// 把TIMER对象到任务队里
+					nmsmemorydate.TaskList.put(hostnode.getId() + "", timer);// 鎶奣IMER瀵硅薄鍒颁换鍔￠槦閲�
 				}
 			}
 		}
