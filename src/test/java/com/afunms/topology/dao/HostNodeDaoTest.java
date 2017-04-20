@@ -2,6 +2,7 @@ package com.afunms.topology.dao;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class HostNodeDaoTest {
@@ -16,6 +17,7 @@ public class HostNodeDaoTest {
 	public void tearDown() throws Exception {
 	}
 
+	@Ignore
 	@Test
 	public void testLoadIsMonitoredNode() {
 		System.out.println(dao.loadIsMonitoredNode());

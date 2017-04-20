@@ -18,7 +18,7 @@ public class GathersqlRunTest {
 
 	@Test
 	public void testRun() {
-		fail("Not yet implemented"); // TODO
+		
 	}
 
 }

@@ -13,28 +13,57 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
 				<configuration>
+				<defaultLibBundleDir>lib</defaultLibBundleDir>
 					<source>1.8</source>
 					<target>1.8</target>
-					
+
 				</configuration>
 			</plugin>
 			
-				<plugin>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>3.0.0</version>
-					<configuration>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				
+			</plugin>
+		
+            
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>3.0.0</version>
+				
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
 						<archive>
-							<manifest>
-								<mainClass>com.afunms.service.IPSServer</mainClass>
-							</manifest>
-						</archive>
-						<descriptorRefs>
-							<descriptors>jar-with-dependencies</descriptors>
-						</descriptorRefs>
-					</configuration>
-				</plugin>
-			</plugins>
+						<manifest>
+							<mainClass>${exec.mainClass}</mainClass>
+						</manifest>
+					</archive>
+					
+						<descriptors>
+						<descriptor>${basedir}\descriptor.xml</descriptor>
+						</descriptors>
+					
+					
+				</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
+
+		</plugins>
 	</build>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<exec.mainClass>com.afunms.service.IPSServer</exec.mainClass>
+	</properties>
 	<dependencies>
 
 		<dependency>
@@ -104,7 +133,7 @@
 			<artifactId>phoenix-client</artifactId>
 			<version>4.10.0-HBase-1.2</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/src/main/resources/phoenix-4.10.0-HBase-1.2-client.jar</systemPath>
+			<systemPath>${basedir}/phoenix-4.10.0-HBase-1.2-client.jar</systemPath>
 		</dependency>
 
 	</dependencies>
